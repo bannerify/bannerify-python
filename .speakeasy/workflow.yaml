@@ -12,3 +12,5 @@ targets:
         source: bannerify-OAS
         codeSamples:
             output: codeSamples.yaml
+            registry:
+                location: registry.speakeasyapi.dev/bannerify/bannerify/code-samples-python-bannerify
