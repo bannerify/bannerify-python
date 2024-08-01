@@ -10,3 +10,5 @@ targets:
     bannerify:
         target: python
         source: bannerify-OAS
+        codeSamples:
+            output: codeSamples.yaml
