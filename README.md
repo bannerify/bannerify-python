@@ -21,12 +21,12 @@ It has been generated successfully based on your OpenAPI spec. However, it is no
 
 PIP
 ```bash
-pip install git+<UNSET>.git
+pip install git+https://github.com/bannerify/bannerify-python.git
 ```
 
 Poetry
 ```bash
-poetry add git+<UNSET>.git
+poetry add git+https://github.com/bannerify/bannerify-python.git
 ```
 <!-- End SDK Installation [installation] -->
 
@@ -38,14 +38,28 @@ poetry add git+<UNSET>.git
 ```python
 # Synchronous Example
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness()
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
 if res is not None:
     # handle response
@@ -59,13 +73,27 @@ The same SDK client can also be used to make asychronous requests by importing a
 # Asynchronous Example
 import asyncio
 from bannerify import Bannerify
-import os
 
 async def main():
     s = Bannerify(
-        bearer_auth=os.getenv("BEARER_AUTH", ""),
+        bearer_auth="BANNERIFY_API_KEY",
     )
-    res = await s.get_v1_liveness_async()
+    res = await s.post_v1_templates_create_image_async(request={
+        "api_key": "key_xxxxxxxxx",
+        "template_id": "tpl_xxxxxxxxx",
+        "modifications": [
+            {
+                "name": "Text 1",
+                "color": "#FF0000",
+                "src": "https://example.com/image.jpg",
+                "text": "Hello World",
+                "barcode": "1234567890",
+                "qrcode": "Some text",
+                "visible": True,
+                "star": 5,
+            },
+        ],
+    })
     if res is not None:
         # handle response
         pass
@@ -79,7 +107,6 @@ asyncio.run(main())
 
 ### [Bannerify SDK](docs/sdks/bannerify/README.md)
 
-* [get_v1_liveness](docs/sdks/bannerify/README.md#get_v1_liveness)
 * [post_v1_templates_create_image](docs/sdks/bannerify/README.md#post_v1_templates_create_image)
 * [get_v1_templates_signedurl](docs/sdks/bannerify/README.md#get_v1_templates_signedurl)
 * [get_v1_info](docs/sdks/bannerify/README.md#get_v1_info) - Get project info
@@ -94,14 +121,28 @@ To change the default retry strategy for a single API call, simply provide a `Re
 ```python
 from bannerify import Bannerify
 from bannerify.utils import BackoffStrategy, RetryConfig
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness(,
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+},
     RetryConfig("backoff", BackoffStrategy(1, 50, 1.1, 100), False))
 
 if res is not None:
@@ -114,15 +155,29 @@ If you'd like to override the default retry strategy for all operations that sup
 ```python
 from bannerify import Bannerify
 from bannerify.utils import BackoffStrategy, RetryConfig
-import os
 
 s = Bannerify(
     retry_config=RetryConfig("backoff", BackoffStrategy(1, 50, 1.1, 100), False),
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness()
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
 if res is not None:
     # handle response
@@ -136,32 +191,46 @@ if res is not None:
 
 Handling errors in this SDK should largely match your expectations.  All operations return a response object or raise an error.  If Error objects are specified in your OpenAPI Spec, the SDK will raise the appropriate Error type.
 
-| Error Object                             | Status Code                              | Content Type                             |
-| ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| models.GetV1LivenessResponseResponseBody | 400                                      | application/json                         |
-| models.ErrUnauthorized                   | 401                                      | application/json                         |
-| models.ErrForbidden                      | 403                                      | application/json                         |
-| models.ErrNotFound                       | 404                                      | application/json                         |
-| models.ErrConflict                       | 409                                      | application/json                         |
-| models.ErrTooManyRequests                | 429                                      | application/json                         |
-| models.ErrInternalServerError            | 500                                      | application/json                         |
-| models.SDKError                          | 4xx-5xx                                  | */*                                      |
+| Error Object                                  | Status Code                                   | Content Type                                  |
+| --------------------------------------------- | --------------------------------------------- | --------------------------------------------- |
+| models.PostV1TemplatesCreateImageResponseBody | 400                                           | application/json                              |
+| models.ErrUnauthorized                        | 401                                           | application/json                              |
+| models.ErrForbidden                           | 403                                           | application/json                              |
+| models.ErrNotFound                            | 404                                           | application/json                              |
+| models.ErrConflict                            | 409                                           | application/json                              |
+| models.ErrTooManyRequests                     | 429                                           | application/json                              |
+| models.ErrInternalServerError                 | 500                                           | application/json                              |
+| models.SDKError                               | 4xx-5xx                                       | */*                                           |
 
 ### Example
 
 ```python
 from bannerify import Bannerify, models
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 res = None
 try:
-    res = s.get_v1_liveness()
+    res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
-except models.GetV1LivenessResponseResponseBody as e:
+except models.PostV1TemplatesCreateImageResponseBody as e:
     # handle exception
     raise(e)
 except models.ErrUnauthorized as e:
@@ -208,15 +277,29 @@ You can override the default server globally by passing a server index to the `s
 
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
     server_idx=0,
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness()
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
 if res is not None:
     # handle response
@@ -230,15 +313,29 @@ if res is not None:
 The default server can also be overridden globally by passing a URL to the `server_url: str` optional parameter when initializing the SDK client instance. For example:
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
     server_url="https://api.bannerify.co",
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness()
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
 if res is not None:
     # handle response
@@ -342,14 +439,28 @@ This SDK supports the following security scheme globally:
 To authenticate with the API the `bearer_auth` parameter must be set when initializing the SDK client instance. For example:
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
-res = s.get_v1_liveness()
+res = s.post_v1_templates_create_image(request={
+    "api_key": "key_xxxxxxxxx",
+    "template_id": "tpl_xxxxxxxxx",
+    "modifications": [
+        {
+            "name": "Text 1",
+            "color": "#FF0000",
+            "src": "https://example.com/image.jpg",
+            "text": "Hello World",
+            "barcode": "1234567890",
+            "qrcode": "Some text",
+            "visible": True,
+            "star": 5,
+        },
+    ],
+})
 
 if res is not None:
     # handle response
