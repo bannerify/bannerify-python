@@ -2,7 +2,7 @@ workflowVersion: 1.0.0
 sources:
     bannerify-OAS:
         inputs:
-            - location: http://localhost:5173/api/openapi
+            - location: https://api.bannerify.co/openapi
         registry:
             location: registry.speakeasyapi.dev/bannerify/bannerify/bannerify-oas
 targets:
