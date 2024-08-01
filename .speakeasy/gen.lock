@@ -1,23 +1,26 @@
 lockVersion: 2.0.0
 id: 237680b3-e42b-45ad-81dd-105277177e95
 management:
-  docChecksum: 4d0fe89b891847f4de8f8c7d1234c888
+  docChecksum: 598fe8a2be8e11a25b866e2994b2c61b
   docVersion: 0.0.0
-  speakeasyVersion: 1.346.0
-  generationVersion: 2.379.3
-  releaseVersion: 0.0.1
-  configChecksum: f1dfb5a1fbaa7d671307526bcfe29b82
+  speakeasyVersion: 1.349.2
+  generationVersion: 2.382.2
+  releaseVersion: 0.1.0
+  configChecksum: 9247ebe27c72bc517a6a00ccc14835f6
+  repoURL: https://github.com/bannerify/bannerify-python.git
+  installationURL: https://github.com/bannerify/bannerify-python.git
 features:
   python:
     acceptHeaders: 3.0.0
     additionalDependencies: 1.0.0
-    constsAndDefaults: 1.0.0
-    core: 5.2.4
+    constsAndDefaults: 1.0.1
+    core: 5.2.5
     defaultEnabledRetries: 0.2.0
     devContainers: 3.0.0
-    downloadStreams: 1.0.0
-    envVarSecurityUsage: 0.2.0
+    downloadStreams: 1.0.1
+    envVarSecurityUsage: 0.2.1
     errorUnions: 1.0.1
+    examples: 3.0.0
     flattening: 3.0.0
     globalSecurity: 3.0.0
     globalSecurityCallbacks: 1.0.0
@@ -57,7 +60,7 @@ generatedFiles:
   - src/bannerify/utils/url.py
   - src/bannerify/utils/values.py
   - src/bannerify/models/sdkerror.py
-  - src/bannerify/models/get_v1_livenessop.py
+  - src/bannerify/models/post_v1_templates_createimageop.py
   - src/bannerify/models/errbadrequest.py
   - src/bannerify/models/errfetchimageerror.py
   - src/bannerify/models/errunauthorized.py
@@ -66,14 +69,15 @@ generatedFiles:
   - src/bannerify/models/errconflict.py
   - src/bannerify/models/errtoomanyrequests.py
   - src/bannerify/models/errinternalservererror.py
-  - src/bannerify/models/post_v1_templates_createimageop.py
   - src/bannerify/models/modification.py
   - src/bannerify/models/get_v1_templates_signedurlop.py
   - src/bannerify/models/get_v1_infoop.py
   - src/bannerify/models/security.py
   - src/bannerify/models/__init__.py
-  - docs/models/getv1livenessresponseresponsebody.md
-  - docs/models/getv1livenessresponsebody.md
+  - docs/models/format.md
+  - docs/models/postv1templatescreateimagerequestbody.md
+  - docs/models/postv1templatescreateimageresponsebody.md
+  - docs/models/postv1templatescreateimageresponse.md
   - docs/models/code.md
   - docs/models/error.md
   - docs/models/errbadrequest.md
@@ -98,10 +102,6 @@ generatedFiles:
   - docs/models/errinternalservererrorcode.md
   - docs/models/errinternalservererrorerror.md
   - docs/models/errinternalservererror.md
-  - docs/models/format.md
-  - docs/models/postv1templatescreateimagerequestbody.md
-  - docs/models/postv1templatescreateimageresponsebody.md
-  - docs/models/postv1templatescreateimageresponse.md
   - docs/models/modification.md
   - docs/models/queryparamformat.md
   - docs/models/getv1templatessignedurlrequest.md

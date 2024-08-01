@@ -5,54 +5,9 @@
 
 ### Available Operations
 
-* [get_v1_liveness](#get_v1_liveness)
 * [post_v1_templates_create_image](#post_v1_templates_create_image)
 * [get_v1_templates_signedurl](#get_v1_templates_signedurl)
 * [get_v1_info](#get_v1_info) - Get project info
-
-## get_v1_liveness
-
-### Example Usage
-
-```python
-from bannerify import Bannerify
-import os
-
-s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
-)
-
-
-res = s.get_v1_liveness()
-
-if res is not None:
-    # handle response
-    pass
-
-```
-
-### Parameters
-
-| Parameter                                                           | Type                                                                | Required                                                            | Description                                                         |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `retries`                                                           | [Optional[utils.RetryConfig]](../../models/utils/retryconfig.md)    | :heavy_minus_sign:                                                  | Configuration to override the default retry behavior of the client. |
-
-
-### Response
-
-**[models.GetV1LivenessResponseBody](../../models/getv1livenessresponsebody.md)**
-### Errors
-
-| Error Object                             | Status Code                              | Content Type                             |
-| ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| models.GetV1LivenessResponseResponseBody | 400                                      | application/json                         |
-| models.ErrUnauthorized                   | 401                                      | application/json                         |
-| models.ErrForbidden                      | 403                                      | application/json                         |
-| models.ErrNotFound                       | 404                                      | application/json                         |
-| models.ErrConflict                       | 409                                      | application/json                         |
-| models.ErrTooManyRequests                | 429                                      | application/json                         |
-| models.ErrInternalServerError            | 500                                      | application/json                         |
-| models.SDKError                          | 4xx-5xx                                  | */*                                      |
 
 ## post_v1_templates_create_image
 
@@ -60,10 +15,9 @@ if res is not None:
 
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
@@ -120,10 +74,9 @@ if res is not None:
 
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 
@@ -172,10 +125,9 @@ Get project info
 
 ```python
 from bannerify import Bannerify
-import os
 
 s = Bannerify(
-    bearer_auth=os.getenv("BEARER_AUTH", ""),
+    bearer_auth="BANNERIFY_API_KEY",
 )
 
 

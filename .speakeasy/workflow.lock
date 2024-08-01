@@ -1,24 +1,26 @@
-speakeasyVersion: 1.346.0
+speakeasyVersion: 1.349.2
 sources:
     bannerify-OAS:
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:343b2a5cf6c5b42c052f525c7fb732efae9658ea361e0db5ff2826dc9b92d3ab
-        sourceBlobDigest: sha256:9468beb798b7d8c441ee88c9326398b9d4cb106b5d76b54e1bd8f74b819c5562
+        sourceRevisionDigest: sha256:74cfae4b3a77b510d6034c4e9dbb237527221716ffb6cfd581a3c78ddb0deb3d
+        sourceBlobDigest: sha256:47a2e22971be0056b895dbf25fd60116ac21a8469839fa52959cb0891871943e
         tags:
             - latest
+            - main
 targets:
     bannerify:
         source: bannerify-OAS
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:343b2a5cf6c5b42c052f525c7fb732efae9658ea361e0db5ff2826dc9b92d3ab
-        sourceBlobDigest: sha256:9468beb798b7d8c441ee88c9326398b9d4cb106b5d76b54e1bd8f74b819c5562
-        outLocation: /Users/anduc/projects/bannerify-py
+        sourceRevisionDigest: sha256:74cfae4b3a77b510d6034c4e9dbb237527221716ffb6cfd581a3c78ddb0deb3d
+        sourceBlobDigest: sha256:47a2e22971be0056b895dbf25fd60116ac21a8469839fa52959cb0891871943e
+        outLocation: /github/workspace/repo
 workflow:
     workflowVersion: 1.0.0
+    speakeasyVersion: latest
     sources:
         bannerify-OAS:
             inputs:
-                - location: http://localhost:5173/api/openapi
+                - location: https://api.bannerify.co/openapi
             registry:
                 location: registry.speakeasyapi.dev/bannerify/bannerify/bannerify-oas
     targets:
