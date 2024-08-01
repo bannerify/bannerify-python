@@ -1,0 +1,18 @@
+# Modification
+
+A modification (aka override) to apply to the layer in image
+
+
+## Fields
+
+| Field                                                     | Type                                                      | Required                                                  | Description                                               | Example                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| `name`                                                    | *str*                                                     | :heavy_check_mark:                                        | The layer name of the modification                        | Text 1                                                    |
+| `color`                                                   | *Optional[str]*                                           | :heavy_minus_sign:                                        | The color for the modification                            | #FF0000                                                   |
+| `src`                                                     | *Optional[str]*                                           | :heavy_minus_sign:                                        | The source image for the modification                     | https://example.com/image.jpg                             |
+| `text`                                                    | *Optional[str]*                                           | :heavy_minus_sign:                                        | You can modify the text layer with this field             | Hello World                                               |
+| `barcode`                                                 | *Optional[str]*                                           | :heavy_minus_sign:                                        | Modify the barcode layer content with this field          | 1234567890                                                |
+| `qrcode`                                                  | *Optional[str]*                                           | :heavy_minus_sign:                                        | Modify the qrcode layer content with this field           | Some text                                                 |
+| `chart`                                                   | Dict[str, *Any*]                                          | :heavy_minus_sign:                                        | Update chart layer's data, follow chart.js data structure |                                                           |
+| `visible`                                                 | *Optional[bool]*                                          | :heavy_minus_sign:                                        | Set the visibility of the field                           | true                                                      |
+| `star`                                                    | *Optional[float]*                                         | :heavy_minus_sign:                                        | Star value                                                | 5                                                         |

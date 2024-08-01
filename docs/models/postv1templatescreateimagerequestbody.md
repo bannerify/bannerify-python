@@ -1,0 +1,12 @@
+# PostV1TemplatesCreateImageRequestBody
+
+
+## Fields
+
+| Field                                                        | Type                                                         | Required                                                     | Description                                                  | Example                                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `api_key`                                                    | *str*                                                        | :heavy_check_mark:                                           | The api key to use for this request                          | key_xxxxxxxxx                                                |
+| `template_id`                                                | *str*                                                        | :heavy_check_mark:                                           | Your template id                                             | tpl_xxxxxxxxx                                                |
+| `format`                                                     | [Optional[models.Format]](../models/format.md)               | :heavy_minus_sign:                                           | N/A                                                          |                                                              |
+| `debug`                                                      | *Optional[str]*                                              | :heavy_minus_sign:                                           | Only for debug purpose, it draws bounding box for each layer |                                                              |
+| `modifications`                                              | List[[models.Modification](../models/modification.md)]       | :heavy_minus_sign:                                           | N/A                                                          |                                                              |

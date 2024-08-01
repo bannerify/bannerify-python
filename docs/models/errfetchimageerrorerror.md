@@ -1,0 +1,11 @@
+# ErrFetchImageErrorError
+
+
+## Fields
+
+| Field                                                                 | Type                                                                  | Required                                                              | Description                                                           | Example                                                               |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `code`                                                                | [models.ErrFetchImageErrorCode](../models/errfetchimageerrorcode.md)  | :heavy_check_mark:                                                    | A machine readable error code.                                        | FETCH_IMAGE_ERROR                                                     |
+| `docs`                                                                | *str*                                                                 | :heavy_check_mark:                                                    | A link to our documentation with more details about this error code   | https://bannerify.co/docs/api-reference/errors/code/FETCH_IMAGE_ERROR |
+| `message`                                                             | *str*                                                                 | :heavy_check_mark:                                                    | A human readable explanation of what went wrong                       |                                                                       |
+| `request_id`                                                          | *str*                                                                 | :heavy_check_mark:                                                    | Please always include the requestId in your error report              | req:1234                                                              |

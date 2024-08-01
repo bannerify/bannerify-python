@@ -1,0 +1,27 @@
+speakeasyVersion: 1.346.0
+sources:
+    bannerify-OAS:
+        sourceNamespace: bannerify-oas
+        sourceRevisionDigest: sha256:343b2a5cf6c5b42c052f525c7fb732efae9658ea361e0db5ff2826dc9b92d3ab
+        sourceBlobDigest: sha256:9468beb798b7d8c441ee88c9326398b9d4cb106b5d76b54e1bd8f74b819c5562
+        tags:
+            - latest
+targets:
+    bannerify:
+        source: bannerify-OAS
+        sourceNamespace: bannerify-oas
+        sourceRevisionDigest: sha256:343b2a5cf6c5b42c052f525c7fb732efae9658ea361e0db5ff2826dc9b92d3ab
+        sourceBlobDigest: sha256:9468beb798b7d8c441ee88c9326398b9d4cb106b5d76b54e1bd8f74b819c5562
+        outLocation: /Users/anduc/projects/bannerify-py
+workflow:
+    workflowVersion: 1.0.0
+    sources:
+        bannerify-OAS:
+            inputs:
+                - location: http://localhost:5173/api/openapi
+            registry:
+                location: registry.speakeasyapi.dev/bannerify/bannerify/bannerify-oas
+    targets:
+        bannerify:
+            target: python
+            source: bannerify-OAS
