@@ -5,8 +5,8 @@ management:
   docVersion: 0.0.0
   speakeasyVersion: 1.349.2
   generationVersion: 2.382.2
-  releaseVersion: 0.1.1
-  configChecksum: 393f2d32997dee2ce6d5b5e8b945186b
+  releaseVersion: 0.1.2
+  configChecksum: 94fa99ef0ce1f433f60c80ee6529adbe
   repoURL: https://github.com/bannerify/bannerify-python.git
   installationURL: https://github.com/bannerify/bannerify-python.git
 features:

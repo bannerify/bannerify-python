@@ -1,0 +1,79 @@
+overlay: 1.0.0
+info:
+  title: CodeSamples overlay for python target
+  version: 0.0.0
+actions:
+  - target: $["paths"]["/v1/templates/signedurl"]["get"]
+    update:
+      x-codeSamples:
+        - lang: python
+          label: get_/v1/templates/signedurl
+          source: |-
+            from bannerify import Bannerify
+
+            s = Bannerify(
+                bearer_auth="BANNERIFY_API_KEY",
+            )
+
+
+            res = s.get_v1_templates_signedurl(request={
+                "nocache": "true",
+                "template_id": "tpl_xxxxxxxxx",
+                "api_key_md5": "<value>",
+                "sign": "<value>",
+            })
+
+            if res is not None:
+                # handle response
+                pass
+  - target: $["paths"]["/v1/info"]["get"]
+    update:
+      x-codeSamples:
+        - lang: python
+          label: get_/v1/info
+          source: |-
+            from bannerify import Bannerify
+
+            s = Bannerify(
+                bearer_auth="BANNERIFY_API_KEY",
+            )
+
+
+            res = s.get_v1_info(api_key="key_xxxxxxxxx")
+
+            if res is not None:
+                # handle response
+                pass
+  - target: $["paths"]["/v1/templates/createImage"]["post"]
+    update:
+      x-codeSamples:
+        - lang: python
+          label: post_/v1/templates/createImage
+          source: |-
+            from bannerify import Bannerify
+
+            s = Bannerify(
+                bearer_auth="BANNERIFY_API_KEY",
+            )
+
+
+            res = s.post_v1_templates_create_image(request={
+                "api_key": "key_xxxxxxxxx",
+                "template_id": "tpl_xxxxxxxxx",
+                "modifications": [
+                    {
+                        "name": "Text 1",
+                        "color": "#FF0000",
+                        "src": "https://example.com/image.jpg",
+                        "text": "Hello World",
+                        "barcode": "1234567890",
+                        "qrcode": "Some text",
+                        "visible": True,
+                        "star": 5,
+                    },
+                ],
+            })
+
+            if res is not None:
+                # handle response
+                pass
