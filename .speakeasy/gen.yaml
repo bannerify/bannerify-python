@@ -2,7 +2,7 @@ configVersion: 2.0.0
 generation:
   devContainers:
     enabled: true
-    schemaPath: http://localhost:5173/api/openapi
+    schemaPath: https://api.bannerify.co/api/openapi
   sdkClassName: Bannerify
   maintainOpenAPIOrder: true
   usageSnippets:
