@@ -10,6 +10,9 @@ targets:
     bannerify:
         target: python
         source: bannerify-OAS
+        publish:
+            pypi:
+                token: $pypi_token
         codeSamples:
             output: codeSamples.yaml
             registry:
