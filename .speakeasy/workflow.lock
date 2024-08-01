@@ -2,8 +2,8 @@ speakeasyVersion: 1.349.2
 sources:
     bannerify-OAS:
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:74cfae4b3a77b510d6034c4e9dbb237527221716ffb6cfd581a3c78ddb0deb3d
-        sourceBlobDigest: sha256:47a2e22971be0056b895dbf25fd60116ac21a8469839fa52959cb0891871943e
+        sourceRevisionDigest: sha256:2b440aa22b8b49e7c2525c5d37af844650e7c8f26ee238dfbc94a46e796723d1
+        sourceBlobDigest: sha256:f6ba916151cadb00de4980a66073e567babbb90e5bcb2da9c5c913c379d58ce4
         tags:
             - latest
             - main
@@ -11,8 +11,8 @@ targets:
     bannerify:
         source: bannerify-OAS
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:74cfae4b3a77b510d6034c4e9dbb237527221716ffb6cfd581a3c78ddb0deb3d
-        sourceBlobDigest: sha256:47a2e22971be0056b895dbf25fd60116ac21a8469839fa52959cb0891871943e
+        sourceRevisionDigest: sha256:2b440aa22b8b49e7c2525c5d37af844650e7c8f26ee238dfbc94a46e796723d1
+        sourceBlobDigest: sha256:f6ba916151cadb00de4980a66073e567babbb90e5bcb2da9c5c913c379d58ce4
         outLocation: /github/workspace/repo
 workflow:
     workflowVersion: 1.0.0
