@@ -3,8 +3,8 @@
 from __future__ import annotations
 from .errbadrequest import ErrBadRequestData
 from .errfetchimageerror import ErrFetchImageErrorData
+from bannerify import utils
 from bannerify.types import BaseModel
-import bannerify.utils as utils
 from bannerify.utils import FieldMetadata, QueryParamMetadata
 from enum import Enum
 import pydantic

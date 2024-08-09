@@ -1,9 +1,9 @@
-speakeasyVersion: 1.349.2
+speakeasyVersion: 1.358.0
 sources:
     bannerify-OAS:
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:3f87639a125d4fddc46d3a8c6e2b0815bd2c62ab3f18b1a66f8c39bd37026ec8
-        sourceBlobDigest: sha256:65687ebb13ed368b9f7b8eeac6b4465b549b9f886255aa5e7622fd21cea569cb
+        sourceRevisionDigest: sha256:77ee0fa052c6c295d91b07d87b1eef63de33aa129d4145d03e6c30b6375cc6a7
+        sourceBlobDigest: sha256:d34f24e6e7243088f5f0555ddd0ecf2d0dd3e00e07812ea1ad24ce2e6b2fa819
         tags:
             - latest
             - main
@@ -11,10 +11,10 @@ targets:
     bannerify:
         source: bannerify-OAS
         sourceNamespace: bannerify-oas
-        sourceRevisionDigest: sha256:3f87639a125d4fddc46d3a8c6e2b0815bd2c62ab3f18b1a66f8c39bd37026ec8
-        sourceBlobDigest: sha256:65687ebb13ed368b9f7b8eeac6b4465b549b9f886255aa5e7622fd21cea569cb
+        sourceRevisionDigest: sha256:77ee0fa052c6c295d91b07d87b1eef63de33aa129d4145d03e6c30b6375cc6a7
+        sourceBlobDigest: sha256:d34f24e6e7243088f5f0555ddd0ecf2d0dd3e00e07812ea1ad24ce2e6b2fa819
         codeSamplesNamespace: code-samples-python-bannerify
-        codeSamplesRevisionDigest: sha256:a86abbffe88e88f45cf49c9ba67fe0ac26f24b6aa771209c8bd5466056ee4ac5
+        codeSamplesRevisionDigest: sha256:5854fb16e87f5d84e3a3beb2a3e568fa0267a246560cd1495335231b8969b968
         outLocation: /github/workspace/repo
 workflow:
     workflowVersion: 1.0.0
@@ -29,6 +29,9 @@ workflow:
         bannerify:
             target: python
             source: bannerify-OAS
+            publish:
+                pypi:
+                    token: $pypi_token
             codeSamples:
                 output: codeSamples.yaml
                 registry:
