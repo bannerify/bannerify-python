@@ -8,9 +8,9 @@ from typing_extensions import Annotated
 
 
 class SecurityTypedDict(TypedDict):
-    bearer_auth: str
+    token: str
     
 
 class Security(BaseModel):
-    bearer_auth: Annotated[str, FieldMetadata(security=SecurityMetadata(scheme=True, scheme_type="apiKey", sub_type="query", field_name="apiKey"))]
+    token: Annotated[str, FieldMetadata(security=SecurityMetadata(scheme=True, scheme_type="apiKey", sub_type="query", field_name="apiKey"))]
     

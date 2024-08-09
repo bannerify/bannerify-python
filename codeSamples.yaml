@@ -12,7 +12,7 @@ actions:
             from bannerify import Bannerify
 
             s = Bannerify(
-                bearer_auth="BANNERIFY_API_KEY",
+                token="BANNERIFY_API_KEY",
             )
 
 
@@ -35,7 +35,7 @@ actions:
             from bannerify import Bannerify
 
             s = Bannerify(
-                bearer_auth="BANNERIFY_API_KEY",
+                token="BANNERIFY_API_KEY",
             )
 
 
@@ -53,13 +53,46 @@ actions:
             from bannerify import Bannerify
 
             s = Bannerify(
-                bearer_auth="BANNERIFY_API_KEY",
+                token="BANNERIFY_API_KEY",
             )
 
 
             res = s.post_v1_templates_create_image(request={
-                "api_key": "key_xxxxxxxxx",
+                "api_key": "<value>",
                 "template_id": "tpl_xxxxxxxxx",
+                "modifications": [
+                    {
+                        "name": "Text 1",
+                        "color": "#FF0000",
+                        "src": "https://example.com/image.jpg",
+                        "text": "Hello World",
+                        "barcode": "1234567890",
+                        "qrcode": "Some text",
+                        "visible": True,
+                        "star": 5,
+                    },
+                ],
+            })
+
+            if res is not None:
+                # handle response
+                pass
+  - target: $["paths"]["/v1/templates/createPdf"]["post"]
+    update:
+      x-codeSamples:
+        - lang: python
+          label: post_/v1/templates/createPdf
+          source: |-
+            from bannerify import Bannerify
+
+            s = Bannerify(
+                token="BANNERIFY_API_KEY",
+            )
+
+
+            res = s.post_v1_templates_create_pdf(request={
+                "api_key": "<value>",
+                "template_id": "tpl_xxx",
                 "modifications": [
                     {
                         "name": "Text 1",
