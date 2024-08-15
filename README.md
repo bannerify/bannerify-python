@@ -5,12 +5,12 @@
 
 PIP
 ```bash
-pip install git+https://github.com/bannerify/bannerify-python.git
+pip install bannerify
 ```
 
 Poetry
 ```bash
-poetry add git+https://github.com/bannerify/bannerify-python.git
+poetry add bannerify
 ```
 <!-- End SDK Installation [installation] -->
 
@@ -24,12 +24,12 @@ poetry add git+https://github.com/bannerify/bannerify-python.git
 from bannerify import Bannerify
 
 s = Bannerify(
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -60,10 +60,10 @@ from bannerify import Bannerify
 
 async def main():
     s = Bannerify(
-        bearer_auth="BANNERIFY_API_KEY",
+        token="BANNERIFY_API_KEY",
     )
     res = await s.post_v1_templates_create_image_async(request={
-        "api_key": "key_xxxxxxxxx",
+        "api_key": "<value>",
         "template_id": "tpl_xxxxxxxxx",
         "modifications": [
             {
@@ -91,8 +91,9 @@ asyncio.run(main())
 
 ### [Bannerify SDK](docs/sdks/bannerify/README.md)
 
-* [post_v1_templates_create_image](docs/sdks/bannerify/README.md#post_v1_templates_create_image)
-* [get_v1_templates_signedurl](docs/sdks/bannerify/README.md#get_v1_templates_signedurl)
+* [post_v1_templates_create_image](docs/sdks/bannerify/README.md#post_v1_templates_create_image) - Create an image from a template
+* [post_v1_templates_create_pdf](docs/sdks/bannerify/README.md#post_v1_templates_create_pdf)
+* [get_v1_templates_signedurl](docs/sdks/bannerify/README.md#get_v1_templates_signedurl) - Generate a signed URL for a template
 * [get_v1_info](docs/sdks/bannerify/README.md#get_v1_info) - Get project info
 <!-- End Available Resources and Operations [operations] -->
 
@@ -107,12 +108,12 @@ from bannerify import Bannerify
 from bannerify.utils import BackoffStrategy, RetryConfig
 
 s = Bannerify(
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -142,12 +143,12 @@ from bannerify.utils import BackoffStrategy, RetryConfig
 
 s = Bannerify(
     retry_config=RetryConfig("backoff", BackoffStrategy(1, 50, 1.1, 100), False),
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -192,13 +193,13 @@ Handling errors in this SDK should largely match your expectations.  All operati
 from bannerify import Bannerify, models
 
 s = Bannerify(
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 res = None
 try:
     res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -264,12 +265,12 @@ from bannerify import Bannerify
 
 s = Bannerify(
     server_idx=0,
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -300,12 +301,12 @@ from bannerify import Bannerify
 
 s = Bannerify(
     server_url="https://api.bannerify.co",
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -416,21 +417,21 @@ s = Bannerify(async_client=CustomClient(httpx.AsyncClient()))
 
 This SDK supports the following security scheme globally:
 
-| Name          | Type          | Scheme        |
-| ------------- | ------------- | ------------- |
-| `bearer_auth` | apiKey        | API key       |
+| Name    | Type    | Scheme  |
+| ------- | ------- | ------- |
+| `token` | apiKey  | API key |
 
-To authenticate with the API the `bearer_auth` parameter must be set when initializing the SDK client instance. For example:
+To authenticate with the API the `token` parameter must be set when initializing the SDK client instance. For example:
 ```python
 from bannerify import Bannerify
 
 s = Bannerify(
-    bearer_auth="BANNERIFY_API_KEY",
+    token="BANNERIFY_API_KEY",
 )
 
 
 res = s.post_v1_templates_create_image(request={
-    "api_key": "key_xxxxxxxxx",
+    "api_key": "<value>",
     "template_id": "tpl_xxxxxxxxx",
     "modifications": [
         {
@@ -452,6 +453,30 @@ if res is not None:
 
 ```
 <!-- End Authentication [security] -->
+
+<!-- Start IDE Support [idesupport] -->
+## IDE Support
+
+### PyCharm
+
+Generally, the SDK will work well with most IDEs out of the box. However, when using PyCharm, you can enjoy much better integration with Pydantic by installing an additional plugin.
+
+- [PyCharm Pydantic Plugin](https://docs.pydantic.dev/latest/integrations/pycharm/)
+<!-- End IDE Support [idesupport] -->
+
+<!-- Start Debugging [debug] -->
+## Debugging
+
+To emit debug logs for SDK requests and responses you can pass a logger object directly into your SDK object.
+
+```python
+from bannerify import Bannerify
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+s = Bannerify(debug_logger=logging.getLogger("bannerify"))
+```
+<!-- End Debugging [debug] -->
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 

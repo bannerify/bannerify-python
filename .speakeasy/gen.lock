@@ -1,28 +1,29 @@
 lockVersion: 2.0.0
 id: 237680b3-e42b-45ad-81dd-105277177e95
 management:
-  docChecksum: 598fe8a2be8e11a25b866e2994b2c61b
+  docChecksum: 8687f4a92831ad50868358cad92aba4c
   docVersion: 0.0.0
-  speakeasyVersion: 1.349.2
-  generationVersion: 2.382.2
-  releaseVersion: 0.1.2
-  configChecksum: 94fa99ef0ce1f433f60c80ee6529adbe
+  speakeasyVersion: 1.368.0
+  generationVersion: 2.399.0
+  releaseVersion: 0.2.0
+  configChecksum: a2b4cc8c2dcba41426a1d6fd85492ed9
   repoURL: https://github.com/bannerify/bannerify-python.git
   installationURL: https://github.com/bannerify/bannerify-python.git
+  published: true
 features:
   python:
     acceptHeaders: 3.0.0
     additionalDependencies: 1.0.0
-    constsAndDefaults: 1.0.1
-    core: 5.2.5
+    constsAndDefaults: 1.0.2
+    core: 5.3.8
     defaultEnabledRetries: 0.2.0
     devContainers: 3.0.0
     downloadStreams: 1.0.1
-    envVarSecurityUsage: 0.2.1
+    envVarSecurityUsage: 0.3.1
     errorUnions: 1.0.1
     examples: 3.0.0
     flattening: 3.0.0
-    globalSecurity: 3.0.0
+    globalSecurity: 3.0.2
     globalSecurityCallbacks: 1.0.0
     globalSecurityFlattening: 1.0.0
     globalServerURLs: 3.0.0
@@ -30,14 +31,17 @@ features:
     responseFormat: 1.0.0
     retries: 3.0.0
     sdkHooks: 1.0.0
-    unions: 3.0.1
+    unions: 3.0.2
 generatedFiles:
   - src/bannerify/sdkconfiguration.py
   - src/bannerify/sdk.py
   - .vscode/settings.json
+  - poetry.toml
   - py.typed
   - pylintrc
   - pyproject.toml
+  - scripts/compile.sh
+  - scripts/prepare-readme.py
   - scripts/publish.sh
   - src/bannerify/__init__.py
   - src/bannerify/basesdk.py
@@ -51,6 +55,7 @@ generatedFiles:
   - src/bannerify/utils/eventstreaming.py
   - src/bannerify/utils/forms.py
   - src/bannerify/utils/headers.py
+  - src/bannerify/utils/logger.py
   - src/bannerify/utils/metadata.py
   - src/bannerify/utils/queryparams.py
   - src/bannerify/utils/requestbodies.py
@@ -70,6 +75,7 @@ generatedFiles:
   - src/bannerify/models/errtoomanyrequests.py
   - src/bannerify/models/errinternalservererror.py
   - src/bannerify/models/modification.py
+  - src/bannerify/models/post_v1_templates_createpdfop.py
   - src/bannerify/models/get_v1_templates_signedurlop.py
   - src/bannerify/models/get_v1_infoop.py
   - src/bannerify/models/security.py
@@ -103,10 +109,13 @@ generatedFiles:
   - docs/models/errinternalservererrorerror.md
   - docs/models/errinternalservererror.md
   - docs/models/modification.md
+  - docs/models/postv1templatescreatepdfrequestbody.md
+  - docs/models/postv1templatescreatepdfresponsebody.md
   - docs/models/queryparamformat.md
   - docs/models/getv1templatessignedurlrequest.md
   - docs/models/getv1templatessignedurlresponsebody.md
   - docs/models/getv1inforequest.md
+  - docs/models/getv1inforesponseresponsebody.md
   - docs/models/getv1inforesponsebody.md
   - docs/models/security.md
   - docs/models/utils/retryconfig.md

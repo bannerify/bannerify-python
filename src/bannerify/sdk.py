@@ -3,11 +3,11 @@
 from .basesdk import BaseSDK
 from .httpclient import AsyncHttpClient, HttpClient
 from .sdkconfiguration import SDKConfiguration
+from .utils.logger import Logger, NoOpLogger
 from .utils.retries import RetryConfig
-from bannerify import models
+from bannerify import models, utils
 from bannerify._hooks import HookContext, SDKHooks
 from bannerify.types import BaseModel, OptionalNullable, UNSET
-import bannerify.utils as utils
 from enum import Enum
 import httpx
 from typing import Any, Callable, Dict, Optional, Union, cast
@@ -18,18 +18,19 @@ class PostV1TemplatesCreateImageAcceptEnum(str, Enum):
 class Bannerify(BaseSDK):
     def __init__(
         self,
-        bearer_auth: Union[str, Callable[[], str]],
+        token: Union[str, Callable[[], str]],
         server_idx: Optional[int] = None,
         server_url: Optional[str] = None,
         url_params: Optional[Dict[str, str]] = None,
         client: Optional[HttpClient] = None,
         async_client: Optional[AsyncHttpClient] = None,
         retry_config: OptionalNullable[RetryConfig] = UNSET,
-        timeout_ms: Optional[int] = None
+        timeout_ms: Optional[int] = None,
+        debug_logger: Optional[Logger] = None
     ) -> None:
         r"""Instantiates the SDK configuring it with the provided parameters.
 
-        :param bearer_auth: The bearer_auth required for authentication
+        :param token: The token required for authentication
         :param server_idx: The index of the server to use for all methods
         :param server_url: The server URL to use for all methods
         :param url_params: Parameters to optionally template the server URL with
@@ -48,15 +49,18 @@ class Bannerify(BaseSDK):
         if async_client is None:
             async_client = httpx.AsyncClient()
 
+        if debug_logger is None:
+            debug_logger = NoOpLogger()
+
         assert issubclass(
             type(async_client), AsyncHttpClient
         ), "The provided async_client must implement the AsyncHttpClient protocol."
         
         security: Any = None
-        if callable(bearer_auth):
-            security = lambda: models.Security(bearer_auth = bearer_auth()) # pylint: disable=unnecessary-lambda-assignment
+        if callable(token):
+            security = lambda: models.Security(token = token()) # pylint: disable=unnecessary-lambda-assignment
         else:
-            security = models.Security(bearer_auth = bearer_auth)
+            security = models.Security(token = token)
 
         if server_url is not None:
             if url_params is not None:
@@ -70,7 +74,8 @@ class Bannerify(BaseSDK):
             server_url=server_url,
             server_idx=server_idx,
             retry_config=retry_config,
-            timeout_ms=timeout_ms
+            timeout_ms=timeout_ms,
+            debug_logger=debug_logger
         ))
 
         hooks = SDKHooks()
@@ -92,7 +97,8 @@ class Bannerify(BaseSDK):
         timeout_ms: Optional[int] = None,
         accept_header_override: Optional[PostV1TemplatesCreateImageAcceptEnum] = None
     ) -> Optional[models.PostV1TemplatesCreateImageResponse]:
-        r"""
+        r"""Create an image from a template
+
         :param request: The request object to send.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -191,7 +197,8 @@ class Bannerify(BaseSDK):
         timeout_ms: Optional[int] = None,
         accept_header_override: Optional[PostV1TemplatesCreateImageAcceptEnum] = None
     ) -> Optional[models.PostV1TemplatesCreateImageResponse]:
-        r"""
+        r"""Create an image from a template
+
         :param request: The request object to send.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -282,6 +289,196 @@ class Bannerify(BaseSDK):
 
     
     
+    def post_v1_templates_create_pdf(
+        self, *,
+        request: Union[models.PostV1TemplatesCreatePdfRequestBody, models.PostV1TemplatesCreatePdfRequestBodyTypedDict],
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+    ) -> Optional[httpx.Response]:
+        r"""
+        :param request: The request object to send.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+        
+        if server_url is not None:
+            base_url = server_url
+        
+        if not isinstance(request, BaseModel):
+            request = utils.unmarshal(request, models.PostV1TemplatesCreatePdfRequestBody)
+        request = cast(models.PostV1TemplatesCreatePdfRequestBody, request)
+        
+        req = self.build_request(
+            method="POST",
+            path="/v1/templates/createPdf",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/pdf",
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(request, False, False, "json", models.PostV1TemplatesCreatePdfRequestBody),
+            timeout_ms=timeout_ms,
+        )
+        
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, [
+                "429",
+                "500",
+                "502",
+                "503",
+                "504"
+            ])                
+        
+        http_res = self.do_request(
+            hook_ctx=HookContext(operation_id="post_/v1/templates/createPdf", oauth2_scopes=[], security_source=self.sdk_configuration.security),
+            request=req,
+            error_status_codes=["400","401","403","404","409","429","4XX","500","5XX"],
+            stream=True,
+            retry_config=retry_config
+        )
+        
+        data: Any = None
+        if utils.match_response(http_res, "200", "application/pdf"):
+            return http_res
+        if utils.match_response(http_res, "400", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.PostV1TemplatesCreatePdfResponseBodyUnion)
+            raise models.PostV1TemplatesCreatePdfResponseBody(data=data)
+        if utils.match_response(http_res, "401", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrUnauthorizedData)
+            raise models.ErrUnauthorized(data=data)
+        if utils.match_response(http_res, "403", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrForbiddenData)
+            raise models.ErrForbidden(data=data)
+        if utils.match_response(http_res, "404", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrNotFoundData)
+            raise models.ErrNotFound(data=data)
+        if utils.match_response(http_res, "409", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrConflictData)
+            raise models.ErrConflict(data=data)
+        if utils.match_response(http_res, "429", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrTooManyRequestsData)
+            raise models.ErrTooManyRequests(data=data)
+        if utils.match_response(http_res, "500", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrInternalServerErrorData)
+            raise models.ErrInternalServerError(data=data)
+        if utils.match_response(http_res, ["4XX","5XX"], "*"):
+            raise models.SDKError("API error occurred", http_res.status_code, http_res.text, http_res)
+        
+        content_type = http_res.headers.get("Content-Type")
+        raise models.SDKError(f"Unexpected response received (code: {http_res.status_code}, type: {content_type})", http_res.status_code, http_res.text, http_res)
+
+    
+    
+    async def post_v1_templates_create_pdf_async(
+        self, *,
+        request: Union[models.PostV1TemplatesCreatePdfRequestBody, models.PostV1TemplatesCreatePdfRequestBodyTypedDict],
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+    ) -> Optional[httpx.Response]:
+        r"""
+        :param request: The request object to send.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+        
+        if server_url is not None:
+            base_url = server_url
+        
+        if not isinstance(request, BaseModel):
+            request = utils.unmarshal(request, models.PostV1TemplatesCreatePdfRequestBody)
+        request = cast(models.PostV1TemplatesCreatePdfRequestBody, request)
+        
+        req = self.build_request(
+            method="POST",
+            path="/v1/templates/createPdf",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/pdf",
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(request, False, False, "json", models.PostV1TemplatesCreatePdfRequestBody),
+            timeout_ms=timeout_ms,
+        )
+        
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, [
+                "429",
+                "500",
+                "502",
+                "503",
+                "504"
+            ])                
+        
+        http_res = await self.do_request_async(
+            hook_ctx=HookContext(operation_id="post_/v1/templates/createPdf", oauth2_scopes=[], security_source=self.sdk_configuration.security),
+            request=req,
+            error_status_codes=["400","401","403","404","409","429","4XX","500","5XX"],
+            stream=True,
+            retry_config=retry_config
+        )
+        
+        data: Any = None
+        if utils.match_response(http_res, "200", "application/pdf"):
+            return http_res
+        if utils.match_response(http_res, "400", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.PostV1TemplatesCreatePdfResponseBodyUnion)
+            raise models.PostV1TemplatesCreatePdfResponseBody(data=data)
+        if utils.match_response(http_res, "401", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrUnauthorizedData)
+            raise models.ErrUnauthorized(data=data)
+        if utils.match_response(http_res, "403", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrForbiddenData)
+            raise models.ErrForbidden(data=data)
+        if utils.match_response(http_res, "404", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrNotFoundData)
+            raise models.ErrNotFound(data=data)
+        if utils.match_response(http_res, "409", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrConflictData)
+            raise models.ErrConflict(data=data)
+        if utils.match_response(http_res, "429", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrTooManyRequestsData)
+            raise models.ErrTooManyRequests(data=data)
+        if utils.match_response(http_res, "500", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrInternalServerErrorData)
+            raise models.ErrInternalServerError(data=data)
+        if utils.match_response(http_res, ["4XX","5XX"], "*"):
+            raise models.SDKError("API error occurred", http_res.status_code, http_res.text, http_res)
+        
+        content_type = http_res.headers.get("Content-Type")
+        raise models.SDKError(f"Unexpected response received (code: {http_res.status_code}, type: {content_type})", http_res.status_code, http_res.text, http_res)
+
+    
+    
     def get_v1_templates_signedurl(
         self, *,
         request: Union[models.GetV1TemplatesSignedurlRequest, models.GetV1TemplatesSignedurlRequestTypedDict],
@@ -289,7 +486,8 @@ class Bannerify(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
     ) -> Optional[bytes]:
-        r"""
+        r"""Generate a signed URL for a template
+
         :param request: The request object to send.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -382,7 +580,8 @@ class Bannerify(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
     ) -> Optional[bytes]:
-        r"""
+        r"""Generate a signed URL for a template
+
         :param request: The request object to send.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -526,12 +725,34 @@ class Bannerify(BaseSDK):
         http_res = self.do_request(
             hook_ctx=HookContext(operation_id="get_/v1/info", oauth2_scopes=[], security_source=self.sdk_configuration.security),
             request=req,
-            error_status_codes=["4XX","5XX"],
+            error_status_codes=["400","401","403","404","409","429","4XX","500","5XX"],
             retry_config=retry_config
         )
         
+        data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
             return utils.unmarshal_json(http_res.text, Optional[models.GetV1InfoResponseBody])
+        if utils.match_response(http_res, "400", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.GetV1InfoResponseResponseBodyUnion)
+            raise models.GetV1InfoResponseResponseBody(data=data)
+        if utils.match_response(http_res, "401", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrUnauthorizedData)
+            raise models.ErrUnauthorized(data=data)
+        if utils.match_response(http_res, "403", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrForbiddenData)
+            raise models.ErrForbidden(data=data)
+        if utils.match_response(http_res, "404", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrNotFoundData)
+            raise models.ErrNotFound(data=data)
+        if utils.match_response(http_res, "409", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrConflictData)
+            raise models.ErrConflict(data=data)
+        if utils.match_response(http_res, "429", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrTooManyRequestsData)
+            raise models.ErrTooManyRequests(data=data)
+        if utils.match_response(http_res, "500", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrInternalServerErrorData)
+            raise models.ErrInternalServerError(data=data)
         if utils.match_response(http_res, ["4XX","5XX"], "*"):
             raise models.SDKError("API error occurred", http_res.status_code, http_res.text, http_res)
         
@@ -598,12 +819,34 @@ class Bannerify(BaseSDK):
         http_res = await self.do_request_async(
             hook_ctx=HookContext(operation_id="get_/v1/info", oauth2_scopes=[], security_source=self.sdk_configuration.security),
             request=req,
-            error_status_codes=["4XX","5XX"],
+            error_status_codes=["400","401","403","404","409","429","4XX","500","5XX"],
             retry_config=retry_config
         )
         
+        data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
             return utils.unmarshal_json(http_res.text, Optional[models.GetV1InfoResponseBody])
+        if utils.match_response(http_res, "400", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.GetV1InfoResponseResponseBodyUnion)
+            raise models.GetV1InfoResponseResponseBody(data=data)
+        if utils.match_response(http_res, "401", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrUnauthorizedData)
+            raise models.ErrUnauthorized(data=data)
+        if utils.match_response(http_res, "403", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrForbiddenData)
+            raise models.ErrForbidden(data=data)
+        if utils.match_response(http_res, "404", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrNotFoundData)
+            raise models.ErrNotFound(data=data)
+        if utils.match_response(http_res, "409", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrConflictData)
+            raise models.ErrConflict(data=data)
+        if utils.match_response(http_res, "429", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrTooManyRequestsData)
+            raise models.ErrTooManyRequests(data=data)
+        if utils.match_response(http_res, "500", "application/json"):
+            data = utils.unmarshal_json(http_res.text, models.ErrInternalServerErrorData)
+            raise models.ErrInternalServerError(data=data)
         if utils.match_response(http_res, ["4XX","5XX"], "*"):
             raise models.SDKError("API error occurred", http_res.status_code, http_res.text, http_res)
         

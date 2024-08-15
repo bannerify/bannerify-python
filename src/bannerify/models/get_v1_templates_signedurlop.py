@@ -3,8 +3,8 @@
 from __future__ import annotations
 from .errbadrequest import ErrBadRequestData
 from .errfetchimageerror import ErrFetchImageErrorData
+from bannerify import utils
 from bannerify.types import BaseModel
-import bannerify.utils as utils
 from bannerify.utils import FieldMetadata, QueryParamMetadata
 from enum import Enum
 import pydantic
@@ -18,21 +18,23 @@ class QueryParamFormat(str, Enum):
 
 class GetV1TemplatesSignedurlRequestTypedDict(TypedDict):
     template_id: str
-    api_key_md5: str
     sign: str
     format: NotRequired[QueryParamFormat]
     nocache: NotRequired[str]
     debug: NotRequired[str]
+    api_key_md5: NotRequired[str]
+    api_key_hashed: NotRequired[str]
     modifications: NotRequired[str]
     
 
 class GetV1TemplatesSignedurlRequest(BaseModel):
     template_id: Annotated[str, pydantic.Field(alias="templateId"), FieldMetadata(query=QueryParamMetadata(style="form", explode=True))]
-    api_key_md5: Annotated[str, pydantic.Field(alias="apiKeyMd5"), FieldMetadata(query=QueryParamMetadata(style="form", explode=True))]
     sign: Annotated[str, FieldMetadata(query=QueryParamMetadata(style="form", explode=True))]
     format: Annotated[Optional[QueryParamFormat], FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = QueryParamFormat.PNG
     nocache: Annotated[Optional[str], FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = None
     debug: Annotated[Optional[str], pydantic.Field(alias="_debug"), FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = None
+    api_key_md5: Annotated[Optional[str], pydantic.Field(alias="apiKeyMd5"), FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = None
+    api_key_hashed: Annotated[Optional[str], pydantic.Field(alias="apiKeyHashed"), FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = None
     modifications: Annotated[Optional[str], FieldMetadata(query=QueryParamMetadata(style="form", explode=True))] = None
     
 

@@ -6,54 +6,36 @@ from .errfetchimageerror import ErrFetchImageErrorData
 from .modification import Modification, ModificationTypedDict
 from bannerify import utils
 from bannerify.types import BaseModel
-from enum import Enum
-import httpx
 import pydantic
 from typing import List, Optional, TypedDict, Union
 from typing_extensions import Annotated, NotRequired
 
 
-class Format(str, Enum):
-    PNG = "png"
-    SVG = "svg"
-
-class PostV1TemplatesCreateImageRequestBodyTypedDict(TypedDict):
+class PostV1TemplatesCreatePdfRequestBodyTypedDict(TypedDict):
     api_key: str
     template_id: str
-    r"""Your template id"""
-    format: NotRequired[Format]
-    debug: NotRequired[str]
-    r"""Only for debug purpose, it draws bounding box for each layer"""
+    r"""Your template ID"""
     modifications: NotRequired[List[ModificationTypedDict]]
     
 
-class PostV1TemplatesCreateImageRequestBody(BaseModel):
+class PostV1TemplatesCreatePdfRequestBody(BaseModel):
     api_key: Annotated[str, pydantic.Field(alias="apiKey")]
     template_id: Annotated[str, pydantic.Field(alias="templateId")]
-    r"""Your template id"""
-    format: Optional[Format] = Format.PNG
-    debug: Annotated[Optional[str], pydantic.Field(alias="_debug")] = None
-    r"""Only for debug purpose, it draws bounding box for each layer"""
+    r"""Your template ID"""
     modifications: Optional[List[Modification]] = None
     
 
-PostV1TemplatesCreateImageResponseBodyUnion = Union[ErrBadRequestData, ErrFetchImageErrorData]
+PostV1TemplatesCreatePdfResponseBodyUnion = Union[ErrBadRequestData, ErrFetchImageErrorData]
 r"""The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."""
 
 
-class PostV1TemplatesCreateImageResponseBody(Exception):
+class PostV1TemplatesCreatePdfResponseBody(Exception):
     r"""The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."""
-    data: PostV1TemplatesCreateImageResponseBodyUnion
+    data: PostV1TemplatesCreatePdfResponseBodyUnion
 
-    def __init__(self, data: PostV1TemplatesCreateImageResponseBodyUnion):
+    def __init__(self, data: PostV1TemplatesCreatePdfResponseBodyUnion):
         self.data = data
 
     def __str__(self) -> str:
-        return utils.marshal_json(self.data, PostV1TemplatesCreateImageResponseBodyUnion)
-
-
-PostV1TemplatesCreateImageResponseTypedDict = Union[httpx.Response, str]
-
-
-PostV1TemplatesCreateImageResponse = Union[httpx.Response, str]
+        return utils.marshal_json(self.data, PostV1TemplatesCreatePdfResponseBodyUnion)
 
