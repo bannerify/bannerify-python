@@ -23,3 +23,13 @@ Based on:
 - Speakeasy CLI 1.349.2 (2.382.2) https://github.com/speakeasy-api/speakeasy
 ### Generated
 - [python v0.1.2] .
+
+## 2024-08-29 00:45:16
+### Changes
+Based on:
+- OpenAPI Doc  
+- Speakeasy CLI 1.382.0 (2.404.11) https://github.com/speakeasy-api/speakeasy
+### Generated
+- [python v0.2.0] .
+### Releases
+- [PyPI v0.2.0] https://pypi.org/project/bannerify/0.2.0 - .

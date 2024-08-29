@@ -34,6 +34,7 @@ from .serializers import (
 )
 from .url import generate_url, template_url, remove_suffix
 from .values import get_global_from_env, match_content_type, match_status_codes, match_response
+from .logger import Logger, get_body_content, get_default_logger
 
 __all__ = [
     "BackoffStrategy",
@@ -41,6 +42,8 @@ __all__ = [
     "find_metadata",
     "FormMetadata",
     "generate_url",
+    "get_body_content",
+    "get_default_logger",
     "get_discriminator",
     "get_global_from_env",
     "get_headers",
@@ -49,6 +52,7 @@ __all__ = [
     "get_response_headers",
     "get_security",
     "HeaderMetadata",
+    "Logger",
     "marshal_json",
     "match_content_type",
     "match_status_codes",

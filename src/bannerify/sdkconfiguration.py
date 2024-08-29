@@ -3,7 +3,7 @@
 
 from ._hooks import SDKHooks
 from .httpclient import AsyncHttpClient, HttpClient
-from .utils import RetryConfig, remove_suffix
+from .utils import Logger, RetryConfig, remove_suffix
 from bannerify import models
 from bannerify.types import OptionalNullable, UNSET
 from dataclasses import dataclass
@@ -21,14 +21,15 @@ SERVERS = [
 class SDKConfiguration:
     client: HttpClient
     async_client: AsyncHttpClient
+    debug_logger: Logger
     security: Optional[Union[models.Security,Callable[[], models.Security]]] = None
     server_url: Optional[str] = ""
     server_idx: Optional[int] = 0
     language: str = "python"
     openapi_doc_version: str = "0.0.0"
-    sdk_version: str = "0.1.2"
-    gen_version: str = "2.382.2"
-    user_agent: str = "speakeasy-sdk/python 0.1.2 2.382.2 0.0.0 bannerify"
+    sdk_version: str = "0.2.0"
+    gen_version: str = "2.404.11"
+    user_agent: str = "speakeasy-sdk/python 0.2.0 2.404.11 0.0.0 bannerify"
     retry_config: OptionalNullable[RetryConfig] = Field(default_factory=lambda: UNSET)
     timeout_ms: Optional[int] = None
 
