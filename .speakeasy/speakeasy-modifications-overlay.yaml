@@ -1,0 +1,11 @@
+overlay: 1.0.0
+info:
+  title: Speakeasy Modifications
+  version: 0.0.1
+actions:
+  - target: $["paths"]["/v1/templates"]["get"]
+    remove: true
+    x-speakeasy-metadata:
+      type: remove-invalid
+      before: 'validation error: [line 1] validate-types - items attribute required for arrays in OpenAPI 3.0.X documents'
+      after: <removed>

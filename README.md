@@ -1,14 +1,43 @@
 # bannerify
 
+<!-- Start Summary [summary] -->
+## Summary
+
+
+<!-- End Summary [summary] -->
+
+<!-- Start Table of Contents [toc] -->
+## Table of Contents
+
+* [SDK Installation](#sdk-installation)
+* [IDE Support](#ide-support)
+* [SDK Example Usage](#sdk-example-usage)
+* [Available Resources and Operations](#available-resources-and-operations)
+* [Retries](#retries)
+* [Error Handling](#error-handling)
+* [Server Selection](#server-selection)
+* [Custom HTTP Client](#custom-http-client)
+* [Authentication](#authentication)
+* [Debugging](#debugging)
+<!-- End Table of Contents [toc] -->
+
 <!-- Start SDK Installation [installation] -->
 ## SDK Installation
 
-PIP
+The SDK can be installed with either *pip* or *poetry* package managers.
+
+### PIP
+
+*PIP* is the default package installer for Python, enabling easy installation and management of packages from PyPI via the command line.
+
 ```bash
 pip install bannerify
 ```
 
-Poetry
+### Poetry
+
+*Poetry* is a modern tool that simplifies dependency management and package publishing by using a single `pyproject.toml` file to handle project metadata and dependencies.
+
 ```bash
 poetry add bannerify
 ```
@@ -95,6 +124,7 @@ asyncio.run(main())
 * [post_v1_templates_create_pdf](docs/sdks/bannerify/README.md#post_v1_templates_create_pdf)
 * [get_v1_templates_signedurl](docs/sdks/bannerify/README.md#get_v1_templates_signedurl) - Generate a signed URL for a template
 * [get_v1_info](docs/sdks/bannerify/README.md#get_v1_info) - Get project info
+* [get_v1_templates_id](docs/sdks/bannerify/README.md#get_v1_templates_id) - Template details
 <!-- End Available Resources and Operations [operations] -->
 
 <!-- Start Retries [retries] -->
@@ -190,6 +220,8 @@ Handling errors in this SDK should largely match your expectations.  All operati
 ### Example
 
 ```python
+from .errbadrequest import ErrBadRequestData
+from .errfetchimageerror import ErrFetchImageErrorData
 from bannerify import Bannerify, models
 
 s = Bannerify(
@@ -216,25 +248,28 @@ try:
 })
 
 except models.PostV1TemplatesCreateImageResponseBody as e:
-    # handle exception
+    if isinstance(e.data, ErrBadRequestData):
+        # handle custom error data
+    elif isinstance(e.data, ErrFetchImageErrorData):
+        # handle custom error data
     raise(e)
 except models.ErrUnauthorized as e:
-    # handle exception
+    # handle e.data: models.ErrUnauthorizedData
     raise(e)
 except models.ErrForbidden as e:
-    # handle exception
+    # handle e.data: models.ErrForbiddenData
     raise(e)
 except models.ErrNotFound as e:
-    # handle exception
+    # handle e.data: models.ErrNotFoundData
     raise(e)
 except models.ErrConflict as e:
-    # handle exception
+    # handle e.data: models.ErrConflictData
     raise(e)
 except models.ErrTooManyRequests as e:
-    # handle exception
+    # handle e.data: models.ErrTooManyRequestsData
     raise(e)
 except models.ErrInternalServerError as e:
-    # handle exception
+    # handle e.data: models.ErrInternalServerErrorData
     raise(e)
 except models.SDKError as e:
     # handle exception

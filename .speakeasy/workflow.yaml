@@ -4,6 +4,8 @@ sources:
     bannerify-OAS:
         inputs:
             - location: https://api.bannerify.co/openapi
+        overlays:
+            - location: .speakeasy/speakeasy-modifications-overlay.yaml
         registry:
             location: registry.speakeasyapi.dev/bannerify/bannerify/bannerify-oas
 targets:

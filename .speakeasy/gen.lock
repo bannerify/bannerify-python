@@ -1,12 +1,12 @@
 lockVersion: 2.0.0
 id: 237680b3-e42b-45ad-81dd-105277177e95
 management:
-  docChecksum: 8687f4a92831ad50868358cad92aba4c
+  docChecksum: b284c4d2bf18c78445ece3986d3caa0f
   docVersion: 0.0.0
-  speakeasyVersion: 1.382.0
-  generationVersion: 2.404.11
-  releaseVersion: 0.2.0
-  configChecksum: a2b4cc8c2dcba41426a1d6fd85492ed9
+  speakeasyVersion: 1.390.1
+  generationVersion: 2.409.0
+  releaseVersion: 0.2.1
+  configChecksum: 131857b0f99a86c0d4c134eee9bec0a5
   repoURL: https://github.com/bannerify/bannerify-python.git
   installationURL: https://github.com/bannerify/bannerify-python.git
   published: true
@@ -15,12 +15,12 @@ features:
     acceptHeaders: 3.0.0
     additionalDependencies: 1.0.0
     constsAndDefaults: 1.0.2
-    core: 5.4.1
+    core: 5.4.2
     defaultEnabledRetries: 0.2.0
     devContainers: 3.0.0
     downloadStreams: 1.0.1
     envVarSecurityUsage: 0.3.1
-    errorUnions: 1.0.1
+    errorUnions: 1.0.2
     examples: 3.0.0
     flattening: 3.0.0
     globalSecurity: 3.0.2
@@ -78,6 +78,7 @@ generatedFiles:
   - src/bannerify/models/post_v1_templates_createpdfop.py
   - src/bannerify/models/get_v1_templates_signedurlop.py
   - src/bannerify/models/get_v1_infoop.py
+  - src/bannerify/models/get_v1_templates_idop.py
   - src/bannerify/models/security.py
   - src/bannerify/models/__init__.py
   - docs/models/format.md
@@ -117,6 +118,10 @@ generatedFiles:
   - docs/models/getv1inforequest.md
   - docs/models/getv1inforesponseresponsebody.md
   - docs/models/getv1inforesponsebody.md
+  - docs/models/getv1templatesidrequest.md
+  - docs/models/getv1templatesidresponseresponsebody.md
+  - docs/models/layers.md
+  - docs/models/getv1templatesidresponsebody.md
   - docs/models/security.md
   - docs/models/utils/retryconfig.md
   - docs/sdks/bannerify/README.md
