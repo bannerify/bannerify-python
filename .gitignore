@@ -26,4 +26,6 @@ env/
 .coverage
 htmlcov/
 openapi.json
+.env
+playground/output/
 
