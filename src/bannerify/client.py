@@ -2,10 +2,13 @@
 
 import hashlib
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlencode
 
 import httpx
+from pydantic import TypeAdapter
+
+from .models import Modification
 
 
 class BannerifyClient:
@@ -61,7 +64,7 @@ class BannerifyClient:
     def create_image(
         self,
         template_id: str,
-        modifications: Optional[List[Dict[str, Any]]] = None,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
         thumbnail: bool = False,
     ) -> Dict[str, Any]:
@@ -84,10 +87,19 @@ class BannerifyClient:
             ... )
         """
         try:
+            # Convert modifications to dicts if they're Pydantic models
+            mods_list = []
+            if modifications:
+                for mod in modifications:
+                    if isinstance(mod, Modification):
+                        mods_list.append(mod.model_dump(exclude_none=True))
+                    else:
+                        mods_list.append(mod)
+            
             payload = {
                 "apiKey": self.api_key,
                 "templateId": template_id,
-                "modifications": modifications or [],
+                "modifications": mods_list,
                 "format": format,
                 "thumbnail": thumbnail,
             }
@@ -126,7 +138,7 @@ class BannerifyClient:
     def create_pdf(
         self,
         template_id: str,
-        modifications: Optional[List[Dict[str, Any]]] = None,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
     ) -> Dict[str, Any]:
         """Generate a PDF from a template
         
@@ -138,10 +150,19 @@ class BannerifyClient:
             Dict with either 'result' (bytes) or 'error' (dict)
         """
         try:
+            # Convert modifications to dicts if they're Pydantic models
+            mods_list = []
+            if modifications:
+                for mod in modifications:
+                    if isinstance(mod, Modification):
+                        mods_list.append(mod.model_dump(exclude_none=True))
+                    else:
+                        mods_list.append(mod)
+            
             payload = {
                 "apiKey": self.api_key,
                 "templateId": template_id,
-                "modifications": modifications or [],
+                "modifications": mods_list,
             }
 
             response = self._client.post(
@@ -173,7 +194,7 @@ class BannerifyClient:
     def create_stored_image(
         self,
         template_id: str,
-        modifications: Optional[List[Dict[str, Any]]] = None,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
         thumbnail: bool = False,
     ) -> Dict[str, Any]:
@@ -189,10 +210,19 @@ class BannerifyClient:
             Dict with either 'result' (URL string) or 'error' (dict)
         """
         try:
+            # Convert modifications to dicts if they're Pydantic models
+            mods_list = []
+            if modifications:
+                for mod in modifications:
+                    if isinstance(mod, Modification):
+                        mods_list.append(mod.model_dump(exclude_none=True))
+                    else:
+                        mods_list.append(mod)
+            
             payload = {
                 "apiKey": self.api_key,
                 "templateId": template_id,
-                "modifications": modifications or [],
+                "modifications": mods_list,
                 "format": format,
                 "thumbnail": thumbnail,
             }
@@ -227,7 +257,7 @@ class BannerifyClient:
     def generate_image_signed_url(
         self,
         template_id: str,
-        modifications: Optional[List[Dict[str, Any]]] = None,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
         thumbnail: bool = False,
         nocache: bool = False,
@@ -263,7 +293,14 @@ class BannerifyClient:
             params["format"] = "svg"
 
         if modifications:
-            params["modifications"] = json.dumps(modifications)
+            # Convert modifications to dicts if they're Pydantic models
+            mods_list = []
+            for mod in modifications:
+                if isinstance(mod, Modification):
+                    mods_list.append(mod.model_dump(exclude_none=True))
+                else:
+                    mods_list.append(mod)
+            params["modifications"] = json.dumps(mods_list)
 
         if nocache:
             params["nocache"] = "true"
