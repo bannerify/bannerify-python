@@ -1,15 +1,11 @@
 [project]
 name = "bannerify"
-version = "0.1.0"
+version = "0.3.0"
 description = "Official Python SDK for Bannerify API - Generate images and PDFs at scale"
 readme = "README.md"
 authors = [{ name = "Duc An", email = "an@bannerify.co" }]
 requires-python = ">=3.8"
-dependencies = [
-    "httpx>=0.27.0",
-    "pydantic>=2.0",
-    "python-dotenv>=1.0.1",
-]
+dependencies = ["httpx>=0.27.0", "pydantic>=2.0", "python-dotenv>=1.0.1"]
 license = { text = "MIT" }
 keywords = ["bannerify", "image generation", "pdf generation", "api"]
 classifiers = [
