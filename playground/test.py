@@ -73,26 +73,22 @@ if "result" in result:
 else:
     print(f"❌ Error: {result['error']['message']}")
 
-# Test 3: Create SVG
-print("\n3️⃣ Test: Create SVG image")
+# Test 3: Create JPEG
+print("\n3️⃣ Test: Create JPEG image")
 result = client.create_image(
     TEMPLATE_ID,
     modifications=[
-        Modification(name="title", text="SVG Output")
+        Modification(name="title", text="JPEG Output")
     ],
-    format="svg"
+    format="jpeg"
 )
 
 if "result" in result:
-    svg = result["result"]
-    if isinstance(svg, bytes):
-        svg = svg.decode("utf-8")
-    
-    output_path = output_dir / "test-svg.svg"
-    with open(output_path, "w") as f:
-        f.write(svg)
-    print(f"✅ SVG created: {output_path}")
-    print(f"   Size: {len(svg)} chars")
+    output_path = output_dir / "test-jpeg.jpg"
+    with open(output_path, "wb") as f:
+        f.write(result["result"])
+    print(f"✅ JPEG created: {output_path}")
+    print(f"   Size: {len(result['result'])} bytes")
 else:
     print(f"❌ Error: {result['error']['message']}")
 

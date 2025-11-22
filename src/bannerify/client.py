@@ -10,6 +10,8 @@ from pydantic import TypeAdapter
 
 from .models import Modification
 
+SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
+
 
 class BannerifyClient:
     """Bannerify API Client
@@ -73,7 +75,7 @@ class BannerifyClient:
         Args:
             template_id: Template ID (e.g., 'tpl_xxxxxxxxx')
             modifications: List of modifications to apply
-            format: Output format - 'png' or 'svg' (default: 'png')
+            format: Output format - 'png', 'jpeg', or 'webp' (default: 'png')
             thumbnail: Generate thumbnail version (default: False)
             
         Returns:
@@ -95,7 +97,13 @@ class BannerifyClient:
                         mods_list.append(mod.model_dump(exclude_none=True))
                     else:
                         mods_list.append(mod)
-            
+            format = (format or "png").lower()
+            if format not in SUPPORTED_FORMATS:
+                return self._build_error(
+                    "INVALID_FORMAT",
+                    f"Unsupported format '{format}'. Valid formats: png, jpeg, webp.",
+                )
+
             payload = {
                 "apiKey": self.api_key,
                 "templateId": template_id,
@@ -110,12 +118,7 @@ class BannerifyClient:
             )
 
             if response.status_code == 200:
-                content_type = response.headers.get("content-type", "")
-                
-                if "image/svg" in content_type:
-                    return {"result": response.text}
-                else:
-                    return {"result": response.content}
+                return {"result": response.content}
 
             # Handle error responses
             if response.headers.get("content-type", "").startswith("application/json"):
@@ -203,7 +206,7 @@ class BannerifyClient:
         Args:
             template_id: Template ID
             modifications: List of modifications to apply
-            format: Output format - 'png' or 'svg'
+            format: Output format - 'png', 'jpeg', or 'webp'
             thumbnail: Generate thumbnail version
             
         Returns:
@@ -218,7 +221,13 @@ class BannerifyClient:
                         mods_list.append(mod.model_dump(exclude_none=True))
                     else:
                         mods_list.append(mod)
-            
+            format = (format or "png").lower()
+            if format not in SUPPORTED_FORMATS:
+                return self._build_error(
+                    "INVALID_FORMAT",
+                    f"Unsupported format '{format}'. Valid formats: png, jpeg, webp.",
+                )
+
             payload = {
                 "apiKey": self.api_key,
                 "templateId": template_id,
@@ -267,7 +276,7 @@ class BannerifyClient:
         Args:
             template_id: Template ID
             modifications: List of modifications to apply
-            format: Output format - 'png' or 'svg'
+            format: Output format - 'png', 'jpeg', or 'webp'
             thumbnail: Generate thumbnail version
             nocache: Bypass cache
             
@@ -289,8 +298,11 @@ class BannerifyClient:
             "templateId": template_id,
         }
 
-        if format == "svg":
-            params["format"] = "svg"
+        if format:
+            normalized_format = format.lower()
+            if normalized_format not in SUPPORTED_FORMATS:
+                raise ValueError("format must be one of: png, jpeg, webp")
+            params["format"] = normalized_format
 
         if modifications:
             # Convert modifications to dicts if they're Pydantic models

@@ -49,24 +49,22 @@ def main():
         print(f"✗ FAILED: {e}")
         failed = True
 
-    # Test 3: Create image (SVG)
-    print("Test 3: Creating image (SVG format)... ", end="")
+    # Test 3: Create image (JPEG)
+    print("Test 3: Creating image (JPEG format)... ", end="")
     try:
         result = client.create_image(
             template_id,
-            format="svg",
-            modifications=[{"name": "title", "text": "Python SDK Test"}]
+            format="jpeg",
+            modifications=[{"name": "title", "text": "Python SDK JPEG"}]
         )
         
         if "result" in result:
-            svg = result["result"]
-            if isinstance(svg, bytes):
-                svg = svg.decode("utf-8")
-            if "<svg" in svg:
+            jpeg = result["result"]
+            if isinstance(jpeg, bytes) and len(jpeg) > 0:
                 print("✓ PASSED")
-                print(f"   SVG size: {len(svg)} chars")
+                print(f"   JPEG size: {len(jpeg)} bytes")
             else:
-                print("✗ FAILED: Response doesn't contain SVG")
+                print("✗ FAILED: Empty JPEG response")
                 failed = True
         else:
             error_msg = result.get("error", {}).get("message", "Unknown error")

@@ -65,10 +65,10 @@ result = client.create_image(
     ]
 )
 
-# Generate SVG
+# Generate WebP
 result = client.create_image(
     "tpl_xxxxxxxxx",
-    format="svg",
+    format="webp",
     modifications=[{"name": "title", "text": "My Title"}]
 )
 
