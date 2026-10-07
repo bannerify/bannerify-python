@@ -1,6 +1,7 @@
 """Bannerify Client for Python"""
 
 import hashlib
+import hmac
 import json
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlencode
@@ -323,10 +324,12 @@ class BannerifyClient:
         # Sort parameters
         sorted_params = dict(sorted(params.items()))
 
-        # Generate signature
+        # Generate signature: HMAC keyed with the API key, so the URL can be
+        # shared without exposing anything that can sign a different one.
         query_string = urlencode(sorted_params)
-        sign_input = query_string + api_key_hashed
-        sign = hashlib.sha256(sign_input.encode()).hexdigest()
+        sign = hmac.new(
+            self.api_key.encode(), query_string.encode(), hashlib.sha256
+        ).hexdigest()
         sorted_params["sign"] = sign
 
         return f"{self.base_url}/templates/signedurl?{urlencode(sorted_params)}"
