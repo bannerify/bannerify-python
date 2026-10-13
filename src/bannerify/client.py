@@ -4,7 +4,7 @@ import hashlib
 import hmac
 import json
 from typing import Any, Dict, List, Optional, Union
-from urllib.parse import urlencode
+from urllib.parse import quote_plus
 
 import httpx
 from pydantic import TypeAdapter
@@ -12,6 +12,22 @@ from pydantic import TypeAdapter
 from .models import Modification
 
 SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
+
+
+def _encode_form(value: str) -> str:
+    """Encode a string like JavaScript's URLSearchParams.
+
+    The server rebuilds the signed text with URLSearchParams. quote_plus differs
+    for "*", which URLSearchParams keeps, and "~", which URLSearchParams encodes.
+    """
+    return quote_plus(value, safe="*").replace("~", "%7E")
+
+
+def _encode_query(params: Dict[str, str]) -> str:
+    """Join the parameters sorted by name, each key and value encoded like URLSearchParams."""
+    return "&".join(
+        f"{_encode_form(key)}={_encode_form(value)}" for key, value in sorted(params.items())
+    )
 
 
 class BannerifyClient:
@@ -69,7 +85,6 @@ class BannerifyClient:
         template_id: str,
         modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
-        thumbnail: bool = False,
     ) -> Dict[str, Any]:
         """Generate an image from a template
         
@@ -77,7 +92,6 @@ class BannerifyClient:
             template_id: Template ID (e.g., 'tpl_xxxxxxxxx')
             modifications: List of modifications to apply
             format: Output format - 'png', 'jpeg', or 'webp' (default: 'png')
-            thumbnail: Generate thumbnail version (default: False)
             
         Returns:
             Dict with either 'result' (bytes) or 'error' (dict)
@@ -110,7 +124,6 @@ class BannerifyClient:
                 "templateId": template_id,
                 "modifications": mods_list,
                 "format": format,
-                "thumbnail": thumbnail,
             }
 
             response = self._client.post(
@@ -200,7 +213,6 @@ class BannerifyClient:
         template_id: str,
         modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
-        thumbnail: bool = False,
     ) -> Dict[str, Any]:
         """Create an image and store it on Bannerify's CDN
         
@@ -208,7 +220,6 @@ class BannerifyClient:
             template_id: Template ID
             modifications: List of modifications to apply
             format: Output format - 'png', 'jpeg', or 'webp'
-            thumbnail: Generate thumbnail version
             
         Returns:
             Dict with either 'result' (URL string) or 'error' (dict)
@@ -234,7 +245,6 @@ class BannerifyClient:
                 "templateId": template_id,
                 "modifications": mods_list,
                 "format": format,
-                "thumbnail": thumbnail,
             }
 
             response = self._client.post(
@@ -269,7 +279,6 @@ class BannerifyClient:
         template_id: str,
         modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
         format: str = "png",
-        thumbnail: bool = False,
         nocache: bool = False,
     ) -> str:
         """Generate a signed URL for on-demand image generation
@@ -278,7 +287,6 @@ class BannerifyClient:
             template_id: Template ID
             modifications: List of modifications to apply
             format: Output format - 'png', 'jpeg', or 'webp'
-            thumbnail: Generate thumbnail version
             nocache: Bypass cache
             
         Returns:
@@ -313,26 +321,19 @@ class BannerifyClient:
                     mods_list.append(mod.model_dump(exclude_none=True))
                 else:
                     mods_list.append(mod)
-            params["modifications"] = json.dumps(mods_list)
+            params["modifications"] = json.dumps(mods_list, separators=(",", ":"))
 
         if nocache:
             params["nocache"] = "true"
 
-        if thumbnail:
-            params["thumbnail"] = "true"
-
-        # Sort parameters
-        sorted_params = dict(sorted(params.items()))
-
         # Generate signature: HMAC keyed with the API key, so the URL can be
         # shared without exposing anything that can sign a different one.
-        query_string = urlencode(sorted_params)
+        query_string = _encode_query(params)
         sign = hmac.new(
             self.api_key.encode(), query_string.encode(), hashlib.sha256
         ).hexdigest()
-        sorted_params["sign"] = sign
 
-        return f"{self.base_url}/templates/signedurl?{urlencode(sorted_params)}"
+        return f"{self.base_url}/templates/signedurl?{query_string}&sign={sign}"
 
     def _build_error(self, code: str, message: str) -> Dict[str, Any]:
         """Build an error response

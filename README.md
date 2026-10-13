@@ -71,9 +71,6 @@ result = client.create_image(
     format="webp",
     modifications=[{"name": "title", "text": "My Title"}]
 )
-
-# Generate thumbnail
-result = client.create_image("tpl_xxxxxxxxx", thumbnail=True)
 ```
 
 ### Creating PDFs
@@ -143,8 +140,7 @@ BannerifyClient(
 client.create_image(
     template_id: str,
     modifications: Optional[List[Dict[str, Any]]] = None,
-    format: str = "png",
-    thumbnail: bool = False
+    format: str = "png"
 ) -> Dict[str, Any]
 ```
 
@@ -163,8 +159,7 @@ client.create_pdf(
 client.create_stored_image(
     template_id: str,
     modifications: Optional[List[Dict[str, Any]]] = None,
-    format: str = "png",
-    thumbnail: bool = False
+    format: str = "png"
 ) -> Dict[str, Any]
 ```
 
@@ -175,7 +170,6 @@ client.generate_image_signed_url(
     template_id: str,
     modifications: Optional[List[Dict[str, Any]]] = None,
     format: str = "png",
-    thumbnail: bool = False,
     nocache: bool = False
 ) -> str
 ```
