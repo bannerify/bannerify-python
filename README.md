@@ -99,6 +99,24 @@ signed_url = client.generate_image_signed_url(
 print(f"<img src='{signed_url}' alt='Generated Image' />")
 ```
 
+### Rendering Videos
+
+A video template renders as an MP4. Each second of the video counts as one generation.
+
+```python
+# Follow the render: queued, progress, then done or error
+for event in client.render_video("tpl_xxxxxxxxx", modifications=[{"name": "title", "text": "Hi"}]):
+    if event["type"] == "progress":
+        print(f"{event['progress']:.0%}")
+    elif event["type"] == "done":
+        print(event["url"])
+    elif event["type"] == "error":
+        print(event["error"]["message"])
+
+# Or wait for the URL of the MP4
+result = client.render_and_wait_video("tpl_xxxxxxxxx")
+```
+
 ### Error Handling
 
 ```python
@@ -160,6 +178,26 @@ client.create_stored_image(
     template_id: str,
     modifications: Optional[List[Dict[str, Any]]] = None,
     format: str = "png"
+) -> Dict[str, Any]
+```
+
+### render_video
+
+```python
+client.render_video(
+    template_id: str,
+    modifications: Optional[List[Dict[str, Any]]] = None
+) -> Iterator[Dict[str, Any]]
+```
+
+Yields `{"type": "queued", "ahead"}`, `{"type": "progress", "frame", "totalFrames", "progress"}`, then `{"type": "done", "url"}` or `{"type": "error", "error"}`.
+
+### render_and_wait_video
+
+```python
+client.render_and_wait_video(
+    template_id: str,
+    modifications: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]
 ```
 

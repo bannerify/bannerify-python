@@ -3,7 +3,7 @@
 import hashlib
 import hmac
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 from urllib.parse import quote_plus
 
 import httpx
@@ -274,6 +274,82 @@ class BannerifyClient:
         except Exception as e:
             return self._build_error("EXCEPTION", str(e))
 
+    def render_video(
+        self,
+        template_id: str,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
+    ) -> Iterator[Dict[str, Any]]:
+        """Render a video template as an MP4 and stream the events of the render
+
+        Each second of the video counts as one generation.
+
+        Args:
+            template_id: Template ID
+            modifications: List of modifications to apply
+
+        Yields:
+            Event dicts: {'type': 'queued', 'ahead'} while the video waits for a renderer,
+            {'type': 'progress', 'frame', 'totalFrames', 'progress'} while its frames render,
+            then {'type': 'done', 'url'} or {'type': 'error', 'error'}
+        """
+        mods_list = [
+            mod.model_dump(exclude_none=True) if isinstance(mod, Modification) else mod
+            for mod in modifications or []
+        ]
+        payload = {
+            "apiKey": self.api_key,
+            "templateId": template_id,
+            "modifications": mods_list,
+        }
+
+        try:
+            # A render can wait in line for minutes, so only the connection has a timeout.
+            with self._client.stream(
+                "POST",
+                f"{self.base_url}/templates/renderVideo",
+                params={"stream": "true"},
+                json=payload,
+                timeout=httpx.Timeout(self.timeout, read=None),
+            ) as response:
+                if response.status_code != 200:
+                    response.read()
+                    yield {"type": "error", **self._response_error(response)}
+                    return
+
+                data: List[str] = []
+                for line in response.iter_lines():
+                    if line.startswith("data:"):
+                        data.append(line[5:].strip())
+                    elif line == "" and data:
+                        yield json.loads("\n".join(data))
+                        data = []
+
+        except httpx.TimeoutException:
+            yield {"type": "error", **self._build_error("TIMEOUT", "Request timed out")}
+        except httpx.RequestError as e:
+            yield {"type": "error", **self._build_error("REQUEST_ERROR", str(e))}
+
+    def render_and_wait_video(
+        self,
+        template_id: str,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
+    ) -> Dict[str, Any]:
+        """Render a video template as an MP4 and wait until it is stored
+
+        Args:
+            template_id: Template ID
+            modifications: List of modifications to apply
+
+        Returns:
+            Dict with either 'result' (URL string of the MP4) or 'error' (dict)
+        """
+        for event in self.render_video(template_id, modifications):
+            if event["type"] == "done":
+                return {"result": event["url"]}
+            if event["type"] == "error":
+                return {"error": event["error"]}
+        return self._build_error("STREAM_ENDED", "The render ended before the video was done")
+
     def generate_image_signed_url(
         self,
         template_id: str,
@@ -334,6 +410,16 @@ class BannerifyClient:
         ).hexdigest()
 
         return f"{self.base_url}/templates/signedurl?{query_string}&sign={sign}"
+
+    def _response_error(self, response: httpx.Response) -> Dict[str, Any]:
+        """The error of a refused request: the API error object, or an HTTP_ERROR"""
+        if response.headers.get("content-type", "").startswith("application/json"):
+            error_data = response.json()
+            if "error" in error_data:
+                return {"error": error_data["error"]}
+        return self._build_error(
+            "HTTP_ERROR", f"HTTP {response.status_code}: {response.text[:100]}"
+        )
 
     def _build_error(self, code: str, message: str) -> Dict[str, Any]:
         """Build an error response
