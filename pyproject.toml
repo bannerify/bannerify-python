@@ -1,6 +1,6 @@
 [project]
 name = "bannerify"
-version = "0.3.1"
+version = "0.4.0"
 description = "Official Python SDK for Bannerify API - Generate images and PDFs at scale"
 readme = "README.md"
 authors = [{ name = "Duc An", email = "an@bannerify.co" }]
