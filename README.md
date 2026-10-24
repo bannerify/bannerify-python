@@ -104,7 +104,7 @@ print(f"<img src='{signed_url}' alt='Generated Image' />")
 A video template renders as an MP4. Each second of the video counts as one generation, and as two at 60 fps.
 
 ```python
-# Follow the render: queued, progress, then done or error
+# Follow the render: created, queued, progress, then done or error
 for event in client.render_video("tpl_xxxxxxxxx", modifications=[{"name": "title", "text": "Hi"}]):
     if event["type"] == "progress":
         print(f"{event['progress']:.0%}")
@@ -115,6 +115,24 @@ for event in client.render_video("tpl_xxxxxxxxx", modifications=[{"name": "title
 
 # Or wait for the URL of the MP4
 result = client.render_and_wait_video("tpl_xxxxxxxxx")
+```
+
+The `created` event gives the id of the video. The video renders to its end even when the connection drops. Then `render_video` reads the same video again by its id: it waits 1, 2, 4 and 8 seconds before each of 4 attempts, and it never sends the render again. When the attempts run out, the last event is an `error` with the code `TIMEOUT_ERROR`.
+
+```python
+# Start the video and get its id at once, without waiting
+created = client.create_video("tpl_xxxxxxxxx")  # {"result": {"id", "status": "queued"}} or {"error": {...}}
+```
+
+`create_video` sends the render once and never again, because a second request renders a second video.
+
+```python
+# Read the video later by its id
+video = client.get_video("vid_xxx")  # {"result": {"id", "status", "url"}} or {"error": {...}}
+
+# Follow its events again, from the latest one
+for event in client.watch_video("vid_xxx"):
+    print(event["type"])
 ```
 
 ### Error Handling
@@ -190,7 +208,7 @@ client.render_video(
 ) -> Iterator[Dict[str, Any]]
 ```
 
-Yields `{"type": "queued", "ahead"}`, `{"type": "progress", "frame", "totalFrames", "progress"}`, then `{"type": "done", "url"}` or `{"type": "error", "error"}`.
+Yields `{"type": "created", "id"}`, `{"type": "queued", "ahead"}`, `{"type": "progress", "frame", "totalFrames", "progress"}`, then `{"type": "done", "url"}` or `{"type": "error", "error"}`.
 
 ### render_and_wait_video
 
@@ -200,6 +218,33 @@ client.render_and_wait_video(
     modifications: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]
 ```
+
+### watch_video
+
+```python
+client.watch_video(video_id: str) -> Iterator[Dict[str, Any]]
+```
+
+Yields the events of `render_video` again, from the latest one, without `created`.
+
+### create_video
+
+```python
+client.create_video(
+    template_id: str,
+    modifications: Optional[List[Union[Modification, Dict]]] = None
+) -> Dict[str, Any]
+```
+
+Starts the video and returns `{"result": {"id", "status": "queued"}}` or `{"error": {...}}` at once.
+
+### get_video
+
+```python
+client.get_video(video_id: str) -> Dict[str, Any]
+```
+
+Returns `{"result": {"id", "status", "url"?, "error"?}}` or `{"error": {...}}`. `status` is `queued`, `rendering`, `done` or `failed`.
 
 ### generate_image_signed_url
 

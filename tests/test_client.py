@@ -138,6 +138,22 @@ def sse(events):
     return httpx.Response(200, headers={"content-type": "text/event-stream"}, content=body.encode())
 
 
+class DroppedStream(httpx.SyncByteStream):
+    """A stream that sends its chunks, then drops like a lost connection"""
+
+    def __init__(self, chunks):
+        self.chunks = chunks
+
+    def __iter__(self):
+        yield from self.chunks
+        raise httpx.ReadError("network connection was lost")
+
+
+def dropped_after(events):
+    chunks = [f"event: {event['type']}\ndata: {json.dumps(event)}\n\n".encode() for event in events]
+    return httpx.Response(200, headers={"content-type": "text/event-stream"}, stream=DroppedStream(chunks))
+
+
 DONE = {"type": "done", "url": "https://images.bannerify.co/files/a.mp4"}
 
 
@@ -181,6 +197,69 @@ class RenderVideoTest(unittest.TestCase):
         client = client_with(lambda request: httpx.Response(412, json={"error": error}))
 
         self.assertEqual([{"type": "error", "error": error}], list(client.render_video("tpl_x")))
+
+    def test_reads_the_same_video_again_by_its_id_when_the_stream_drops(self):
+        requests = []
+        answers = [
+            dropped_after([{"type": "created", "id": "vid_1"}, {"type": "queued", "ahead": 0}]),
+            sse([{"type": "progress", "frame": 60, "totalFrames": 60, "progress": 1}, DONE]),
+        ]
+
+        def handler(request):
+            requests.append(request)
+            return answers.pop(0)
+
+        events = list(client_with(handler).render_video("tpl_x"))
+
+        self.assertEqual(["created", "queued", "progress", "done"], [event["type"] for event in events])
+        self.assertEqual(
+            ["POST /v1/templates/renderVideo", "GET /v1/videos/vid_1"],
+            [f"{request.method} {request.url.path}" for request in requests],
+        )
+        self.assertEqual("true", requests[1].url.params["stream"])
+        self.assertEqual(VECTORS["apiKey"], requests[1].url.params["apiKey"])
+
+    def test_does_not_send_the_render_again_when_it_fails_before_the_video_has_an_id(self):
+        requests = []
+        error = {"code": "INTERNAL_SERVER_ERROR", "message": "Refused.", "docs": "", "requestId": "r"}
+
+        def handler(request):
+            requests.append(request)
+            return httpx.Response(500, json={"error": error})
+
+        events = list(client_with(handler).render_video("tpl_x"))
+
+        self.assertEqual([{"type": "error", "error": error}], events)
+        self.assertEqual(1, len(requests))
+
+    def test_get_video_answers_the_status_and_the_url_of_a_video(self):
+        requests = []
+        video = {"id": "vid_1", "status": "done", "url": DONE["url"]}
+
+        def handler(request):
+            requests.append(request)
+            return httpx.Response(200, json=video)
+
+        self.assertEqual({"result": video}, client_with(handler).get_video("vid_1"))
+        self.assertEqual("/v1/videos/vid_1", requests[0].url.path)
+        self.assertEqual(VECTORS["apiKey"], requests[0].url.params["apiKey"])
+
+    def test_create_video_answers_the_id_of_the_video_at_once(self):
+        requests = []
+
+        def handler(request):
+            requests.append(request)
+            return httpx.Response(202, json={"id": "vid_1", "status": "queued"})
+
+        result = client_with(handler).create_video("tpl_x", [{"name": "title", "text": "Hi"}])
+        self.assertEqual({"result": {"id": "vid_1", "status": "queued"}}, result)
+        self.assertEqual(1, len(requests))
+        self.assertEqual("POST", requests[0].method)
+        self.assertEqual("/v1/templates/renderVideo", requests[0].url.path)
+        self.assertEqual("false", requests[0].url.params["wait"])
+        body = json.loads(requests[0].content)
+        self.assertEqual("tpl_x", body["templateId"])
+        self.assertEqual([{"name": "title", "text": "Hi"}], body["modifications"])
 
     def test_render_and_wait_video_answers_the_url_or_the_error(self):
         waited = client_with(lambda request: sse([{"type": "queued", "ahead": 0}, DONE]))

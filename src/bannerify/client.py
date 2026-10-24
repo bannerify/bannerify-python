@@ -3,8 +3,9 @@
 import hashlib
 import hmac
 import json
-from typing import Any, Dict, Iterator, List, Optional, Union
-from urllib.parse import quote_plus
+import time
+from typing import Any, ContextManager, Dict, Iterator, List, Optional, Union
+from urllib.parse import quote, quote_plus
 
 import httpx
 from pydantic import TypeAdapter
@@ -12,6 +13,9 @@ from pydantic import TypeAdapter
 from .models import Modification
 
 SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
+
+# The waits in seconds before each new read of a video whose stream dropped.
+RECONNECT_DELAYS = (1.0, 2.0, 4.0, 8.0)
 
 
 def _encode_form(value: str) -> str:
@@ -28,6 +32,17 @@ def _encode_query(params: Dict[str, str]) -> str:
     return "&".join(
         f"{_encode_form(key)}={_encode_form(value)}" for key, value in sorted(params.items())
     )
+
+
+def _read_events(response: httpx.Response) -> Iterator[Dict[str, Any]]:
+    """The JSON of each 'data' field of a server-sent event stream"""
+    data: List[str] = []
+    for line in response.iter_lines():
+        if line.startswith("data:"):
+            data.append(line[5:].strip())
+        elif line == "" and data:
+            yield json.loads("\n".join(data))
+            data = []
 
 
 class BannerifyClient:
@@ -281,14 +296,16 @@ class BannerifyClient:
     ) -> Iterator[Dict[str, Any]]:
         """Render a video template as an MP4 and stream the events of the render
 
-        Each second of the video counts as one generation, and as two at 60 fps.
+        Each second of the video counts as one generation, and as two at 60 fps. When the stream drops, the
+        client reads the same video again by its id, so the video does not render twice.
 
         Args:
             template_id: Template ID
             modifications: List of modifications to apply
 
         Yields:
-            Event dicts: {'type': 'queued', 'ahead'} while the video waits for a renderer,
+            Event dicts: {'type': 'created', 'id'} with the id of the video,
+            {'type': 'queued', 'ahead'} while the video waits for a renderer,
             {'type': 'progress', 'frame', 'totalFrames', 'progress'} while its frames render,
             then {'type': 'done', 'url'} or {'type': 'error', 'error'}
         """
@@ -296,38 +313,161 @@ class BannerifyClient:
             mod.model_dump(exclude_none=True) if isinstance(mod, Modification) else mod
             for mod in modifications or []
         ]
-        payload = {
-            "apiKey": self.api_key,
-            "templateId": template_id,
-            "modifications": mods_list,
-        }
+        yield from self._follow_video(
+            render={
+                "apiKey": self.api_key,
+                "templateId": template_id,
+                "modifications": mods_list,
+            }
+        )
 
+    def create_video(
+        self,
+        template_id: str,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
+    ) -> Dict[str, Any]:
+        """Start the render of a video template and answer its id at once
+
+        The client does not send this request again, because a second request
+        renders a second video. Read the video later with get_video or watch_video.
+
+        Args:
+            template_id: Template ID
+            modifications: List of modifications to apply
+
+        Returns:
+            Dict with either 'result' (dict with 'id' and 'status': 'queued') or 'error' (dict)
+        """
+        mods_list = [
+            mod.model_dump(exclude_none=True) if isinstance(mod, Modification) else mod
+            for mod in modifications or []
+        ]
         try:
-            # A render can wait in line for minutes, so only the connection has a timeout.
-            with self._client.stream(
+            response = self._client.post(
+                f"{self.base_url}/templates/renderVideo",
+                params={"wait": "false"},
+                json={
+                    "apiKey": self.api_key,
+                    "templateId": template_id,
+                    "modifications": mods_list,
+                },
+            )
+
+            if response.status_code == 202:
+                return {"result": response.json()}
+
+            return self._response_error(response)
+
+        except httpx.TimeoutException:
+            return self._build_error("TIMEOUT", "Request timed out")
+        except httpx.RequestError as e:
+            return self._build_error("REQUEST_ERROR", str(e))
+        except Exception as e:
+            return self._build_error("EXCEPTION", str(e))
+
+    def watch_video(self, video_id: str) -> Iterator[Dict[str, Any]]:
+        """Stream the events of a video again, from its latest one, as render_video does
+
+        Args:
+            video_id: Video ID (e.g., 'vid_xxx'), from the 'created' event of render_video
+
+        Yields:
+            The event dicts of render_video, without 'created'
+        """
+        yield from self._follow_video(video_id=video_id)
+
+    def get_video(self, video_id: str) -> Dict[str, Any]:
+        """Read the status of a video, and its URL once it is done
+
+        Args:
+            video_id: Video ID (e.g., 'vid_xxx'), from the 'created' event of render_video
+
+        Returns:
+            Dict with either 'result' (dict with 'id', 'status' and, when the video is
+            done or failed, 'url' or 'error') or 'error' (dict)
+        """
+        try:
+            response = self._client.get(
+                f"{self.base_url}/videos/{quote(video_id, safe='')}",
+                params={"apiKey": self.api_key},
+            )
+
+            if response.status_code == 200:
+                return {"result": response.json()}
+
+            return self._response_error(response)
+
+        except httpx.TimeoutException:
+            return self._build_error("TIMEOUT", "Request timed out")
+        except httpx.RequestError as e:
+            return self._build_error("REQUEST_ERROR", str(e))
+        except Exception as e:
+            return self._build_error("EXCEPTION", str(e))
+
+    def _follow_video(
+        self,
+        video_id: Optional[str] = None,
+        render: Optional[Dict[str, Any]] = None,
+    ) -> Iterator[Dict[str, Any]]:
+        """The events of a video until 'done' or 'error'
+
+        The first request sends the render payload when there is one, else it reads the
+        video by its id. When the stream drops, the client waits and reads the video
+        again by its id (from 'created'). It never sends the render again, because that
+        renders and bills a second video. A refused render is the last event, and so is
+        a refused read, except a server error, which is tried again.
+        """
+        for delay in (*RECONNECT_DELAYS, None):
+            try:
+                with self._open_video_events(video_id, render) as response:
+                    if response.status_code == 200:
+                        for event in _read_events(response):
+                            if event["type"] == "created":
+                                video_id = event["id"]
+                            yield event
+                            if event["type"] in ("done", "error"):
+                                return
+                    elif response.status_code < 500 or render is not None:
+                        response.read()
+                        yield {"type": "error", **self._response_error(response)}
+                        return
+            except httpx.RequestError:
+                pass  # The connection dropped: read the video again below.
+
+            if video_id is None or delay is None:
+                message = (
+                    f"Lost the connection to the video {video_id}. Read it again with get_video."
+                    if video_id
+                    else "Lost the connection before the video got an id."
+                )
+                yield {"type": "error", **self._build_error("TIMEOUT_ERROR", message)}
+                return
+            time.sleep(delay)
+            render = None
+
+    def _open_video_events(
+        self, video_id: Optional[str], render: Optional[Dict[str, Any]]
+    ) -> ContextManager[httpx.Response]:
+        """Open the event stream of a new render, or of the video video_id"""
+        # A render can wait in line for minutes, so only the connection has a timeout.
+        timeout = httpx.Timeout(self.timeout, read=None)
+        headers = {"Accept": "text/event-stream"}
+        if render is not None:
+            return self._client.stream(
                 "POST",
                 f"{self.base_url}/templates/renderVideo",
                 params={"stream": "true"},
-                json=payload,
-                timeout=httpx.Timeout(self.timeout, read=None),
-            ) as response:
-                if response.status_code != 200:
-                    response.read()
-                    yield {"type": "error", **self._response_error(response)}
-                    return
-
-                data: List[str] = []
-                for line in response.iter_lines():
-                    if line.startswith("data:"):
-                        data.append(line[5:].strip())
-                    elif line == "" and data:
-                        yield json.loads("\n".join(data))
-                        data = []
-
-        except httpx.TimeoutException:
-            yield {"type": "error", **self._build_error("TIMEOUT", "Request timed out")}
-        except httpx.RequestError as e:
-            yield {"type": "error", **self._build_error("REQUEST_ERROR", str(e))}
+                json=render,
+                headers=headers,
+                timeout=timeout,
+            )
+        return self._client.stream(
+            "GET",
+            f"{self.base_url}/videos/{quote(str(video_id), safe='')}",
+            params={"apiKey": self.api_key, "stream": "true"},
+            headers=headers,
+            timeout=timeout,
+        )
 
     def render_and_wait_video(
         self,
