@@ -296,8 +296,8 @@ class BannerifyClient:
     ) -> Iterator[Dict[str, Any]]:
         """Render a video template as an MP4 and stream the events of the render
 
-        Each second of the video counts as one generation, and as two at 60 fps. When the stream drops, the
-        client reads the same video again by its id, so the video does not render twice.
+        Each second of the video counts as one generation, and as two at 60 fps. When
+        the stream drops, the client reads the same video again by its id, so the video does not render twice.
 
         Args:
             template_id: Template ID
