@@ -13,6 +13,7 @@ from pydantic import TypeAdapter
 from .models import Modification
 
 SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
+VIDEO_FORMATS = {"m3u8", "mp4"}
 
 # The waits in seconds before each new read of a video whose stream dropped.
 RECONNECT_DELAYS = (1.0, 2.0, 4.0, 8.0)
@@ -32,6 +33,15 @@ def _encode_query(params: Dict[str, str]) -> str:
     return "&".join(
         f"{_encode_form(key)}={_encode_form(value)}" for key, value in sorted(params.items())
     )
+
+
+def _modifications_json(modifications: List[Union[Modification, Dict[str, Any]]]) -> str:
+    """The modifications as compact JSON, the Pydantic models without their None fields"""
+    mods_list = [
+        mod.model_dump(exclude_none=True) if isinstance(mod, Modification) else mod
+        for mod in modifications
+    ]
+    return json.dumps(mods_list, separators=(",", ":"))
 
 
 def _read_events(response: httpx.Response) -> Iterator[Dict[str, Any]]:
@@ -515,13 +525,7 @@ class BannerifyClient:
             ... )
             >>> print(f"<img src='{url}' />")
         """
-        # Hash the API key
-        api_key_hashed = hashlib.sha256(self.api_key.encode()).hexdigest()
-
-        params = {
-            "apiKeyHashed": api_key_hashed,
-            "templateId": template_id,
-        }
+        params: Dict[str, str] = {}
 
         if format:
             normalized_format = format.lower()
@@ -530,17 +534,63 @@ class BannerifyClient:
             params["format"] = normalized_format
 
         if modifications:
-            # Convert modifications to dicts if they're Pydantic models
-            mods_list = []
-            for mod in modifications:
-                if isinstance(mod, Modification):
-                    mods_list.append(mod.model_dump(exclude_none=True))
-                else:
-                    mods_list.append(mod)
-            params["modifications"] = json.dumps(mods_list, separators=(",", ":"))
+            params["modifications"] = _modifications_json(modifications)
 
         if nocache:
             params["nocache"] = "true"
+
+        return self._signed_url(template_id, params)
+
+    def generate_video_signed_url(
+        self,
+        template_id: str,
+        modifications: Optional[List[Union[Modification, Dict[str, Any]]]] = None,
+        format: Optional[str] = None,
+        nocache: bool = False,
+    ) -> str:
+        """Generate a signed URL of a video template, without a request
+
+        Args:
+            template_id: Template ID of a video template
+            modifications: List of modifications to apply
+            format: 'm3u8' (the default) for the video link, an HLS playlist that
+                starts to play while the video renders; 'mp4' for the MP4 file,
+                for videos of up to 15 seconds
+            nocache: Bypass cache
+
+        Returns:
+            The signed URL string
+
+        Example:
+            >>> url = client.generate_video_signed_url(
+            ...     "tpl_xxx",
+            ...     modifications=[{"name": "title", "text": "Dynamic"}]
+            ... )
+            >>> print(f"<video src='{url}' controls></video>")
+        """
+        params: Dict[str, str] = {}
+
+        if format:
+            normalized_format = format.lower()
+            if normalized_format not in VIDEO_FORMATS:
+                raise ValueError("format must be one of: m3u8, mp4")
+            params["format"] = normalized_format
+
+        if modifications:
+            params["modifications"] = _modifications_json(modifications)
+
+        if nocache:
+            params["nocache"] = "true"
+
+        return self._signed_url(template_id, params)
+
+    def _signed_url(self, template_id: str, params: Dict[str, str]) -> str:
+        """The URL of /templates/signedurl with `params`, signed with the API key"""
+        params = {
+            **params,
+            "apiKeyHashed": hashlib.sha256(self.api_key.encode()).hexdigest(),
+            "templateId": template_id,
+        }
 
         # Generate signature: HMAC keyed with the API key, so the URL can be
         # shared without exposing anything that can sign a different one.

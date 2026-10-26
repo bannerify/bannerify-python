@@ -58,6 +58,21 @@ class SignedUrlTest(unittest.TestCase):
 
                 self.assertEqual(golden["url"], url)
 
+    def test_builds_the_golden_video_urls(self):
+        for golden in VECTORS["videoGolden"]:
+            with self.subTest(name=golden["name"]):
+                url = self.client.generate_video_signed_url(
+                    golden["templateId"],
+                    modifications=golden["modifications"],
+                    format=golden["format"],
+                    nocache=golden["nocache"],
+                )
+                self.assertEqual(golden["url"], url)
+
+    def test_rejects_an_unsupported_video_format(self):
+        with self.assertRaises(ValueError):
+            self.client.generate_video_signed_url("tpl_x", format="gif")
+
     def test_signs_the_sorted_query(self):
         url = self.client.generate_image_signed_url(
             "tpl_x",

@@ -135,6 +135,22 @@ for event in client.watch_video("vid_xxx"):
     print(event["type"])
 ```
 
+### Video Links
+
+A signed URL of a video template plays the video without a request from your server. The video link (`m3u8`, the default) is an HLS playlist: it starts to play while the video renders, and plays at once when the same video rendered before. An edit renders again only the seconds it changes. `mp4` redirects to the MP4 once it rendered, for videos of up to 15 seconds. Video links are for the Scale and Enterprise plans.
+
+```python
+video_url = client.generate_video_signed_url(
+    "tpl_xxxxxxxxx",
+    modifications=[{"name": "title", "text": "Dynamic Title"}],
+)
+
+# Safari plays HLS in a <video>; other browsers need an HLS player such as hls.js
+print(f"<video src='{video_url}' controls></video>")
+
+mp4_url = client.generate_video_signed_url("tpl_xxxxxxxxx", format="mp4")
+```
+
 ### Error Handling
 
 ```python
@@ -253,6 +269,17 @@ client.generate_image_signed_url(
     template_id: str,
     modifications: Optional[List[Dict[str, Any]]] = None,
     format: str = "png",
+    nocache: bool = False
+) -> str
+```
+
+### generate_video_signed_url
+
+```python
+client.generate_video_signed_url(
+    template_id: str,
+    modifications: Optional[List[Dict[str, Any]]] = None,
+    format: Optional[str] = None,  # "m3u8" (the default) or "mp4"
     nocache: bool = False
 ) -> str
 ```
